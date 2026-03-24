@@ -2287,4 +2287,47 @@ async function runImport(type) {
           直販内示:parseInt(row["直販内示"])||0, 直販受注:parseInt(row["直販受注"])||0,
           TU受領:parseInt(row["TU受領"])||0, TU商談:parseInt(row["TU商談"])||0,
           TU内示:parseInt(row["TU内示"])||0, TU受注:parseInt(row["TU受注"])||0,
-          販
+          販売店新規:parseInt(row["販売店新規"])||0, 販売店既存:parseInt(row["販売店既存"])||0,
+          エンド書類回収:parseInt(row["エンド書類回収"])||0, エンドクレーム:parseInt(row["エンドクレーム"])||0,
+          エンド納品:parseInt(row["エンド納品"])||0, エンド打合せ:parseInt(row["エンド打合せ"])||0,
+          目標1:row["目標1"]||"", 目標2:row["目標2"]||"",
+          目標3:row["目標3"]||"", トピック:row["トピック"]||"",
+        };
+      }
+      const res = await apiPost({type:apiType, action:"create", payload});
+      if (res.ok) { success++; logLines.push(`✅ ${row["案件名"]||row["代理店名"]||row["販売店名"]||row["日付"]||"行"+success}`); }
+      else { fail++; logLines.push(`❌ 失敗：${JSON.stringify(row).slice(0,40)}`); }
+    } catch(e) {
+      fail++;
+      logLines.push(`❌ エラー：${e.message}`);
+    }
+  }
+
+  statusEl.textContent=`完了：${success}件成功 ${fail>0?fail+"件失敗":""}`;
+  statusEl.style.color=fail>0?"var(--rd)":"var(--g)";
+
+  const logEl=document.getElementById("import-log");
+  const logBody=document.getElementById("import-log-body");
+  logEl.style.display="block";
+  logBody.innerHTML=logLines.join("<br>");
+
+  toast(`インポート完了：${success}件`);
+}
+
+// UTIL
+function num(obj,key){return parseInt(obj[key])||0;}
+function toast(msg){const t=document.getElementById("toast");t.textContent="✅ "+msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+// INIT
+const now=new Date();
+document.getElementById("today-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
+document.getElementById("rep-dt-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
+document.getElementById("r-date").value=now.toISOString().split("T")[0];
+document.getElementById("py-date").value=now.toISOString().split("T")[0];
+document.getElementById("hist-date").value=now.toISOString().split("T")[0];
+updateSubFrame();
+checkConn();
+loadExec();
+</script>
+</body>
+</html>
