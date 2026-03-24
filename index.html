@@ -800,6 +800,20 @@ select option{background:var(--sf);}
       </div>
     </div>
 
+    <!-- 販売店マスタインポート -->
+    <div class="cd">
+      <div class="cd-t">🏢 販売店マスタ</div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:10px;">
+        列：販売店名, 担当者, 電話, メール, 担当営業, 種別(TU/完クロ/両方), 得意業種, エリア, メモ, 登録日(YYYY-MM-DD)
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-g btn-sm" onclick="downloadTemplate('dealer')">📄 テンプレートDL</button>
+        <input type="file" id="import-dealer-file" accept=".csv" style="font-size:12px;color:var(--tx2);">
+        <button class="btn btn-p btn-sm" onclick="runImport('dealer')">▶ インポート実行</button>
+        <span id="import-dealer-status" style="font-size:12px;color:var(--tx3);"></span>
+      </div>
+    </div>
+
     <div id="import-log" style="display:none;">
       <div class="cd-t">インポート結果</div>
       <div id="import-log-body" style="font-size:12px;line-height:1.8;color:var(--tx2);"></div>
@@ -2175,9 +2189,14 @@ async function saveMemberPartners(idx, name){
 //  CSVインポート
 // ============================================================
 const TEMPLATES = {
-  deal: "案件名,チャネル,申請補助金,申請枠,販売店,担当者,金額,ステータス,見込ランク,入金予定月,メモ,登録日\n〇〇社,end,デジタル・AI導入補助金,通常枠,—,橋野 浩一,100,prospect,B,2026-07,備考,2026-03-01",
+  // 案件：最新項目（粗利・申請回・申請業者・外注先費用・商材）を含む
+  deal: "案件名,チャネル,申請補助金,申請枠,販売店,担当者,金額,粗利,ステータス,見込ランク,入金予定月,申請回,申請業者,外注先費用,商材,メモ,登録日\n〇〇社,end,デジタル・AI導入補助金,通常枠,M&Kソリューション,橋野 浩一,500,150,prospect,B,2026-07,第1回,〇〇行政書士,50,Q'sConnect,初回商談の内容,2026-03-01",
+  // 販売店開拓
   partnerdev: "代理店名,担当者,リード元,電話番号,メール,都道府県,対応者,ステータス,メモ,登録日\n〇〇株式会社,山田太郎,代理店募集.com,090-0000-0000,test@example.com,東京都,橋野 浩一,1stコンタクト,初回メモ,2026-03-01",
-  report: "日付,担当者,直販訪問,直販新規見込,直販内示,直販受注,TU受領,TU商談,TU内示,TU受注,販売店新規,販売店既存,目標1,目標2,目標3,トピック\n2026-03-01,橋野 浩一,3,2,1,0,2,1,0,0,1,0,訪問3件目標,TU2件,,本日の特記事項"
+  // 日報：エンド対応項目を含む
+  report: "日付,担当者,直販訪問,直販新規見込,直販内示,直販受注,TU受領,TU商談,TU内示,TU受注,販売店新規,販売店既存,エンド書類回収,エンドクレーム,エンド納品,エンド打合せ,目標1,目標2,目標3,トピック\n2026-03-01,橋野 浩一,3,2,1,0,2,1,0,0,1,0,1,0,2,1,訪問3件目標,TU2件,,本日の特記事項",
+  // 販売店マスタ
+  dealer: "販売店名,担当者,電話,メール,担当営業,種別,得意業種,エリア,メモ,登録日\nM&Kソリューション,田中 一郎,06-0000-0000,tanaka@mk.co.jp,橋野 浩一,TU,飲食・小売,大阪・関西,IT導入補助金に強い,2026-03-01"
 };
 
 function downloadTemplate(type) {
@@ -2206,8 +2225,8 @@ function parseCSV(text) {
 }
 
 async function runImport(type) {
-  const fileInputId = type==="deal"?"import-deal-file":type==="partnerdev"?"import-pd-file":"import-report-file";
-  const statusId    = type==="deal"?"import-deal-status":type==="partnerdev"?"import-pd-status":"import-report-status";
+  const fileInputId = type==="deal"?"import-deal-file":type==="partnerdev"?"import-pd-file":type==="dealer"?"import-dealer-file":"import-report-file";
+  const statusId    = type==="deal"?"import-deal-status":type==="partnerdev"?"import-pd-status":type==="dealer"?"import-dealer-status":"import-report-status";
   const fileInput   = document.getElementById(fileInputId);
   const statusEl    = document.getElementById(statusId);
 
@@ -2235,8 +2254,11 @@ async function runImport(type) {
           案件名:row["案件名"]||"", チャネル:row["チャネル"]||"end",
           申請補助金:row["申請補助金"]||"", 申請枠:row["申請枠"]||"",
           販売店:row["販売店"]||"—", 担当者:row["担当者"]||"",
-          金額:parseInt(row["金額"])||0, ステータス:row["ステータス"]||"prospect",
+          金額:parseInt(row["金額"])||0, 粗利:parseInt(row["粗利"])||0,
+          ステータス:row["ステータス"]||"prospect",
           見込ランク:row["見込ランク"]||"", 入金予定月:row["入金予定月"]||"",
+          申請回:row["申請回"]||"", 申請業者:row["申請業者"]||"",
+          外注先費用:parseInt(row["外注先費用"])||0, 商材:row["商材"]||"",
           メモ:row["メモ"]||"", 登録日:row["登録日"]||today,
         };
       } else if (type === "partnerdev") {
@@ -2248,6 +2270,15 @@ async function runImport(type) {
           対応者:row["対応者"]||"", ステータス:row["ステータス"]||"非対応",
           メモ:row["メモ"]||"", 登録日:row["登録日"]||today,
         };
+      } else if (type === "dealer") {
+        apiType = "dealer";
+        payload = {
+          販売店名:row["販売店名"]||"", 担当者:row["担当者"]||"",
+          電話:row["電話"]||"", メール:row["メール"]||"",
+          担当営業:row["担当営業"]||"", 種別:row["種別"]||"TU",
+          得意業種:row["得意業種"]||"", エリア:row["エリア"]||"",
+          メモ:row["メモ"]||"", 登録日:row["登録日"]||today,
+        };
       } else {
         apiType = "report";
         payload = {
@@ -2256,45 +2287,4 @@ async function runImport(type) {
           直販内示:parseInt(row["直販内示"])||0, 直販受注:parseInt(row["直販受注"])||0,
           TU受領:parseInt(row["TU受領"])||0, TU商談:parseInt(row["TU商談"])||0,
           TU内示:parseInt(row["TU内示"])||0, TU受注:parseInt(row["TU受注"])||0,
-          販売店新規:parseInt(row["販売店新規"])||0, 販売店既存:parseInt(row["販売店既存"])||0,
-          目標1:row["目標1"]||"", 目標2:row["目標2"]||"",
-          目標3:row["目標3"]||"", トピック:row["トピック"]||"",
-        };
-      }
-      const res = await apiPost({type:apiType, action:"create", payload});
-      if (res.ok) { success++; logLines.push(`✅ ${row["案件名"]||row["代理店名"]||row["日付"]||"行"+success}`); }
-      else { fail++; logLines.push(`❌ 失敗：${JSON.stringify(row).slice(0,40)}`); }
-    } catch(e) {
-      fail++;
-      logLines.push(`❌ エラー：${e.message}`);
-    }
-  }
-
-  statusEl.textContent=`完了：${success}件成功 ${fail>0?fail+"件失敗":""}`;
-  statusEl.style.color=fail>0?"var(--rd)":"var(--g)";
-
-  const logEl=document.getElementById("import-log");
-  const logBody=document.getElementById("import-log-body");
-  logEl.style.display="block";
-  logBody.innerHTML=logLines.join("<br>");
-
-  toast(`インポート完了：${success}件`);
-}
-
-// UTIL
-function num(obj,key){return parseInt(obj[key])||0;}
-function toast(msg){const t=document.getElementById("toast");t.textContent="✅ "+msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
-
-// INIT
-const now=new Date();
-document.getElementById("today-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
-document.getElementById("rep-dt-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
-document.getElementById("r-date").value=now.toISOString().split("T")[0];
-document.getElementById("py-date").value=now.toISOString().split("T")[0];
-document.getElementById("hist-date").value=now.toISOString().split("T")[0];
-updateSubFrame();
-checkConn();
-loadExec();
-</script>
-</body>
-</html>
+          販
