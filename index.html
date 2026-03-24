@@ -326,6 +326,19 @@ select option{background:var(--sf);}
   <div class="hd"><div class="hd-t">💴 入金予定管理</div><div class="hd-r"><button class="btn btn-p btn-sm" onclick="toggleAddPay()">＋ 入金予定追加</button></div></div>
   <div class="ct">
     <div class="sec">月別 入金見通し</div>
+    <div class="cd" style="border-color:rgba(79,125,247,.3);padding:12px 16px;margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--tx2);line-height:1.8;">
+        📌 <strong>入金フロー：</strong>
+        案件ステータスが <span class="st st-w">受注</span> → <strong style="color:var(--am)">入金見込</strong>、
+        <span class="st st-w" style="background:rgba(16,185,129,.15);color:#10b981;">採択</span> → <strong style="color:var(--g)">入金予定（確定）</strong> として自動集計されます。<br>
+        手動で入金予定を追加する場合は「＋ 入金予定追加」ボタンから登録してください。
+      </div>
+    </div>
+    <!-- 受注・採択案件の自動集計グラフ -->
+    <div class="cd">
+      <div class="cd-t" style="color:var(--ac);">📊 受注・採択案件 入金見通し（自動集計）</div>
+      <div id="deal-cf-chart"></div>
+    </div>
     <div class="cd" id="cf-bar-cd"></div>
     <div class="cd" id="add-pay-cd" style="display:none;">
       <div class="cd-t">入金予定を追加</div>
@@ -426,6 +439,14 @@ select option{background:var(--sf);}
   <div class="deal-search">
     <div class="search-row">
       <input class="search-input" id="dl-search" type="text" placeholder="🔍  案件名・担当者・販売店で検索..." oninput="applyDealFilter()">
+    </div>
+    <div class="filter-row" style="flex-wrap:wrap;gap:6px;">
+      <span style="font-size:10px;color:var(--tx3);align-self:center;">担当者：</span>
+      <select id="dl-person-filter" onchange="applyDealFilter()" style="font-size:12px;padding:4px 8px;width:auto;border-radius:6px;">
+        <option value="">全員</option>
+        <option>橋野 浩一</option><option>川﨑 慧</option><option>浦塚 弘樹</option>
+        <option>坂本 憲司</option><option>又吉 俊</option><option>千代島 奨磨</option>
+      </select>
     </div>
     <div class="filter-row">
       <span style="font-size:10px;color:var(--tx3);align-self:center;">ステータス：</span>
@@ -612,7 +633,18 @@ select option{background:var(--sf);}
   <div class="hd"><div class="hd-t">🏪 完クロ案件管理</div><div class="hd-r"><span class="bx bx-b">今月集計</span></div></div>
   <div class="ct">
     <div class="partner-note">⚠️ このページはサポート部（完クロ案件担当）が入力・管理します。</div>
-    <div class="sec">担当販売店 実績（日報集計）</div>
+    <!-- TU・完クロ案件サマリ -->
+    <div class="kg" id="partner-kpi">
+      <div class="kpi bl"><div class="kpi-l">TU案件 総数</div><div class="kpi-v bl" id="pk-total">—</div><div class="kpi-s">全ステータス</div></div>
+      <div class="kpi am"><div class="kpi-l">申請中</div><div class="kpi-v am" id="pk-applying">—</div><div class="kpi-s">件</div></div>
+      <div class="kpi gr"><div class="kpi-l">採択済み</div><div class="kpi-v gr" id="pk-adopted">—</div><div class="kpi-s">件</div></div>
+      <div class="kpi rd"><div class="kpi-l">不採択</div><div class="kpi-v rd" id="pk-rejected">—</div><div class="kpi-s">件</div></div>
+    </div>
+    <!-- 案件テーブル -->
+    <div class="cd" style="padding:0;overflow-x:auto;" id="partner-deal-table">
+      <div class="ld" style="padding:16px;"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div>
+    </div>
+    <div class="sec" style="margin-top:14px;">担当販売店 実績（日報集計）</div>
     <div class="cd" id="partner-list"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
     <div class="cd" style="margin-top:14px;"><div class="cd-t">販売店別 TU受領 vs 内示（今月）</div><div style="height:160px;"><canvas id="pt-chart"></canvas></div></div>
   </div>
@@ -642,7 +674,7 @@ select option{background:var(--sf);}
 
 <!-- 月次レポート -->
 <div class="page" id="page-monthly">
-  <div class="hd"><div class="hd-t">📅 月次レポート</div><div class="hd-r"><span class="bx bx-b" id="monthly-lbl"></span><button class="btn btn-gr btn-sm">📥 出力</button></div></div>
+  <div class="hd"><div class="hd-t">📅 月次レポート</div><div class="hd-r"><span class="bx bx-b" id="monthly-lbl"></span><button class="btn btn-gr btn-sm" onclick="exportMonthlyPDF()">📥 PDF出力</button></div></div>
   <div class="ct">
     <!-- KPIカード -->
     <div class="kg" id="monthly-kpi"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
@@ -881,7 +913,7 @@ function cn(k,d){NV[k]=Math.max(0,NV[k]+d);document.getElementById(k).textConten
 
 // EXEC
 async function loadExec(){
-  const today=new Date().toISOString().split("T")[0],month=today.slice(0,7);
+  const today=todayJST(),month=today.slice(0,7);
   const [reports,payments]=await Promise.all([apiGet({type:"report"}),apiGet({type:"payment"})]);
   const todayR=reports.filter(r=>r["日付"]===today),monthR=reports.filter(r=>String(r["日付"]).startsWith(month));
 
@@ -926,7 +958,7 @@ async function loadExec(){
     const rate=total>0?Math.round(nego/total*100):0;
     return `<div class="pc"><div class="pc-h"><div class="av" style="background:${avColors[i]}">${nm[0]}</div><div><div class="pc-n">${nm}</div><div style="font-size:10px;color:var(--tx3);">接触 ${total}件 商談率${rate}%</div></div><div style="margin-left:auto;font-size:22px;font-family:var(--mo);font-weight:700;">${total}</div></div>
     <div class="pc-s" style="grid-template-columns:1fr 1fr 1fr 1fr;"><div class="ps-b"><div class="ps-n" style="color:var(--ac)">${direct}</div><div class="ps-t">直販</div></div><div class="ps-b"><div class="ps-n" style="color:var(--g)">${tu}</div><div class="ps-t">TU</div></div><div class="ps-b"><div class="ps-n" style="color:var(--pu)">${prt}</div><div class="ps-t">販売店</div></div><div class="ps-b"><div class="ps-n" style="color:#38bdf8">${endCont}</div><div class="ps-t">対応</div></div></div>
-    <div class="ch-pills">${nego>0?`<span class="pill pe">商談 ${nego}件</span>`:""}${endCont>0?`<span class="pill" style="background:rgba(56,189,248,.15);color:#38bdf8;">対応 ${endCont}件</span>`:""}${total===0?`<span style="font-size:10px;color:var(--tx3);">本日未入力</span>`:""}</div></div>`;
+    <div class="ch-pills">${nego>0?`<span class="pill pe">商談 ${nego}件</span>`:""}${endCont>0?`<span class="pill" style="background:rgba(56,189,248,.15);color:#38bdf8;">対応 ${endCont}件</span>`:""}${total===0?`<span style="font-size:13px;font-weight:700;background:rgba(248,113,113,.15);color:var(--rd);padding:4px 10px;border-radius:6px;">⚠️ 本日未入力</span>`:""}</div></div>`;
   }).join("");
 
   // ファネル：直販の流れ（訪問→見込→内示→受注）
@@ -961,7 +993,36 @@ function renderCfBars(elId,payments){
   }).join("")+`<div style="display:flex;gap:16px;margin-top:6px;font-size:10px;color:var(--tx3);"><span><span style="display:inline-block;width:10px;height:10px;background:rgba(52,211,153,.5);border-radius:2px;margin-right:4px;"></span>確定</span><span><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,.35);border-radius:2px;margin-right:4px;"></span>見込</span></div>`;
 }
 async function loadPayments(){
-  const pays=await apiGet({type:"payment"});
+  const [pays, deals] = await Promise.all([apiGet({type:"payment"}), apiGet({type:"deal"})]);
+  // 受注・採択案件の入金見通しを月別集計
+  const today=new Date(); 
+  const months=Array.from({length:6},(_,i)=>{const d=new Date(today.getFullYear(),today.getMonth()+i,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");});
+  const orderedByMonth={}, adoptedByMonth={};
+  months.forEach(m=>{orderedByMonth[m]=0;adoptedByMonth[m]=0;});
+  deals.forEach(d=>{
+    const pm=d["入金予定月"]||"";
+    if(months.includes(pm)){
+      if(d["ステータス"]==="ordered") orderedByMonth[pm]+=(num(d,"金額")||0);
+      if(d["ステータス"]==="adopted") adoptedByMonth[pm]+=(num(d,"金額")||0);
+    }
+  });
+  const maxV=Math.max(...months.map(m=>(orderedByMonth[m]||0)+(adoptedByMonth[m]||0)),1);
+  const dealCfEl=document.getElementById("deal-cf-chart");
+  if(dealCfEl) dealCfEl.innerHTML=months.map(m=>{
+    const ord=orderedByMonth[m]||0, adp=adoptedByMonth[m]||0, tot=ord+adp;
+    const wOrd=Math.round(ord/maxV*100), wAdp=Math.round(adp/maxV*100);
+    return `<div class="cf-row" style="margin-bottom:10px;">
+      <span class="cf-ml" style="font-size:13px;">${m.split("-")[1]}月</span>
+      <div class="cf-bo" style="flex:1;height:28px;background:var(--sf3);border-radius:6px;overflow:hidden;display:flex;">
+        ${adp>0?`<div style="width:${wAdp}%;background:rgba(16,185,129,.5);height:100%;"></div>`:""}
+        ${ord>0?`<div style="width:${wOrd}%;background:rgba(245,158,11,.4);height:100%;"></div>`:""}
+      </div>
+      <span style="font-size:13px;font-family:var(--mo);color:${tot>0?"var(--g)":"var(--tx3)"};width:80px;text-align:right;">¥${tot}万</span>
+    </div>`;
+  }).join("")+`<div style="display:flex;gap:16px;margin-top:6px;font-size:11px;color:var(--tx3);">
+    <span><span style="display:inline-block;width:12px;height:12px;background:rgba(16,185,129,.5);border-radius:2px;margin-right:4px;"></span>採択確定</span>
+    <span><span style="display:inline-block;width:12px;height:12px;background:rgba(245,158,11,.4);border-radius:2px;margin-right:4px;"></span>受注見込</span>
+  </div>`;
   renderCfBars("cf-bar-cd",pays);
   const sorted=[...pays].sort((a,b)=>a["入金予定日"]>b["入金予定日"]?1:-1);
   const stCls={pending:"pst-p",confirmed:"pst-c",received:"pst-r"};
@@ -1084,6 +1145,7 @@ function setSubFilter(v){
 
 function applyDealFilter(){
   const q=(document.getElementById("dl-search")?.value||"").trim().toLowerCase();
+  const personFilter=document.getElementById("dl-person-filter")?.value||"";
   let list=allDeals;
   // テキスト検索（案件名・担当者・販売店）
   if(q) list=list.filter(d=>{
@@ -1092,18 +1154,27 @@ function applyDealFilter(){
     const pt=(d["販売店"]||"").toLowerCase();
     return nm.includes(q)||ps.includes(q)||pt.includes(q);
   });
+  // 担当者フィルター
+  if(personFilter) list=list.filter(d=>d["担当者"]===personFilter);
   // ステータス
   if(dealStatusFilter!=="all") list=list.filter(d=>d["ステータス"]===dealStatusFilter);
   // ランク
   if(dealRankFilter) list=list.filter(d=>d["見込ランク"]===dealRankFilter);
   // 補助金
   if(dealSubFilter) list=list.filter(d=>d["申請補助金"]===dealSubFilter);
+  // ソート
+  list=[...list].sort((a,b)=>{
+    const av=a[sortField]||"", bv=b[sortField]||"";
+    const isNum=["金額","粗利","外注先費用"].includes(sortField);
+    const cmp=isNum?(parseFloat(av)||0)-(parseFloat(bv)||0):String(av).localeCompare(String(bv),"ja");
+    return sortAsc?cmp:-cmp;
+  });
   renderDeals(list);
 }
 
 async function submitDeal(){
   const btn=document.getElementById("deal-btn");btn.textContent="登録中...";btn.disabled=true;
-  const today=new Date().toISOString().split("T")[0];
+  const today=todayJST();
   const memoVal=document.getElementById("nd-memo").value;
   const payload={案件名:document.getElementById("nd-nm").value,チャネル:document.getElementById("nd-ch").value,申請補助金:document.getElementById("nd-sub").value,申請枠:document.getElementById("nd-frame").value,販売店:document.getElementById("nd-pt").value||"—",担当者:document.getElementById("nd-ps").value,金額:parseInt(document.getElementById("nd-am").value)||0,粗利:parseInt(document.getElementById("nd-gp").value)||0,ステータス:document.getElementById("nd-st").value,見込ランク:document.getElementById("nd-rank").value,入金予定月:document.getElementById("nd-pm").value,申請回:document.getElementById("nd-round").value,申請業者:document.getElementById("nd-vendor").value,外注先費用:parseInt(document.getElementById("nd-outsource").value)||0,商材:document.getElementById("nd-item").value,メモ:memoVal,登録日:today};
   const res=await apiPost({type:"deal",action:"create",payload});
@@ -1141,7 +1212,7 @@ function renderDeals(list){
       const rkClass=rkC[d["見込ランク"]]||"";
       const chColor=chC[d["チャネル"]]||"#888";
       return `<tr onclick="openDealDetail('${d["id"]}')" style="cursor:pointer;">
-        <td style="white-space:nowrap;font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis;">
+        <td style="white-space:nowrap;font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis;" title="${d["案件名"]||""}">
           <span style="display:inline-block;width:4px;height:16px;background:${chColor};border-radius:2px;margin-right:6px;vertical-align:middle;"></span>${d["案件名"]||""}
         </td>
         <td><span class="st ${stClass}">${stLabel}</span></td>
@@ -1157,26 +1228,26 @@ function renderDeals(list){
         <td style="white-space:nowrap;font-family:var(--mo);font-size:11px;">${d["外注先費用"]>0?"¥"+d["外注先費用"]+"万":"—"}</td>
         <td style="white-space:nowrap;font-family:var(--mo);color:var(--am);font-size:11px;">${d["入金予定月"]||"—"}</td>
         <td style="white-space:nowrap;font-size:11px;" id="hist-count-${d["id"]}">—</td>
-        <td style="white-space:nowrap;font-size:11px;color:var(--tx3);">${d["登録日"]||""}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--tx3);">${d["登録日"]?fmtDate(d["登録日"]):""}</td>
       </tr>`;
     }).join("");
     document.getElementById("deal-list").innerHTML=`<table style="width:100%;border-collapse:collapse;min-width:1200px;">
       <thead><tr style="position:sticky;top:0;background:var(--sf);z-index:1;">
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">案件名</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">ステータス</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">ランク</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">担当者</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">補助金/枠</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">申請回</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">申請業者</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">商材</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">販売店</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">金額</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">粗利</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">外注費</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">入金予定月</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">商談履歴</th>
-        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">登録日</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('案件名')">案件名 <span id="sort-案件名" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('ステータス')">ステータス <span id="sort-ステータス" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('見込ランク')">ランク <span id="sort-見込ランク" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('担当者')">担当者 <span id="sort-担当者" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">補助金/枠</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">申請回</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">申請業者</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">商材</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">販売店</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('金額')">金額 <span id="sort-金額" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('粗利')">粗利 <span id="sort-粗利" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">外注費</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('入金予定月')">入金予定月 <span id="sort-入金予定月" style="color:var(--ac)"></span></th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">商談履歴</th>
+        <th style="text-align:left;font-size:11px;font-weight:700;color:var(--tx3);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;" onclick="sortDeals('登録日')">登録日 <span id="sort-登録日" style="color:var(--ac)"></span></th>
       </tr></thead>
       <tbody style="font-size:12px;">${rows}</tbody>
     </table>`;
@@ -1242,6 +1313,12 @@ async function openDealDetail(dealId){
       <div class="deal-meta-item"><div class="deal-meta-label">商材</div><div class="deal-meta-value">${deal["商材"]||"—"}</div></div>
       <div class="deal-meta-item"><div class="deal-meta-label">初回登録日</div><div class="deal-meta-value">${deal["登録日"]||"—"}</div></div>
       <div class="deal-meta-item"><div class="deal-meta-label">メモ</div><div class="deal-meta-value" style="font-size:11px;color:var(--tx2);">${deal["メモ"]||"—"}</div></div>
+      <div class="deal-meta-item" style="grid-column:span 2;">
+        <div class="deal-meta-label">📎 Googleドライブリンク</div>
+        <div class="deal-meta-value">
+          ${(deal["ドライブリンク"]||"").split("\n").filter(Boolean).map(url=>`<a href="${url}" target="_blank" style="display:block;color:var(--ac);font-size:12px;text-decoration:none;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${url}">🔗 ${url.replace(/https?:\/\/[^/]+/,"").slice(0,40)||url}</a>`).join("")||"<span style=\"font-size:12px;color:var(--tx3)\">未登録</span>"}
+        </div>
+      </div>
     </div>
     <div class="deal-edit-row" style="flex-wrap:wrap;gap:10px;">
       <div style="display:flex;align-items:center;gap:6px;">
@@ -1309,9 +1386,13 @@ async function openDealDetail(dealId){
         <span style="font-size:11px;color:var(--tx3);">商材：</span>
         <input type="text" id="edit-item" value="${deal["商材"]||""}" style="width:120px;font-size:12px;padding:5px 8px;" onchange="updateDealField('${dealId}','商材',this.value)">
       </div>
+      <div style="display:flex;align-items:flex-start;gap:6px;width:100%;">
+        <span style="font-size:11px;color:var(--tx3);padding-top:7px;white-space:nowrap;">📎 ドライブリンク：</span>
+        <textarea id="edit-drive" style="flex:1;font-size:12px;padding:5px 8px;min-height:52px;resize:vertical;" placeholder="複数のリンクは改行で区切ってください" onchange="updateDealField('${dealId}','ドライブリンク',this.value)">${deal["ドライブリンク"]||""}</textarea>
+      </div>
     </div>`;
 
-  document.getElementById("hist-date").value=new Date().toISOString().split("T")[0];
+  document.getElementById("hist-date").value=todayJST();
   document.getElementById("hist-content").value="";
   document.getElementById("hist-next").value="";
 
@@ -1337,7 +1418,7 @@ async function loadTimeline(dealId){
     return `<div class="tl-item ${cls}">
       <div class="tl-card ${cls}">
         <div class="tl-date">
-          <span>${h["商談日"]||""}</span>
+          <span>${fmtDate(h["商談日"]||"")}</span>
           <span class="tl-count">${i+1}回目 · ${h["商談種別"]||""}</span>
           ${isLatest?`<span style="font-size:10px;background:rgba(52,211,153,.15);color:var(--g);padding:1px 6px;border-radius:4px;">最新</span>`:""}
           ${isFirst?`<span style="font-size:10px;background:rgba(79,125,247,.15);color:var(--ac);padding:1px 6px;border-radius:4px;">初回</span>`:""}
@@ -1472,7 +1553,7 @@ function getWeekRange(offset){
   const now=new Date();const day=now.getDay();
   const monday=new Date(now);monday.setDate(now.getDate()-(day===0?6:day-1)+(offset*7));
   const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
-  const fmt=d=>d.toISOString().split("T")[0];
+  const fmt=d=>{const jst=new Date(d.getTime()+9*60*60*1000);return jst.toISOString().split("T")[0];};
   return{start:fmt(monday),end:fmt(sunday),label:`${monday.getMonth()+1}/${monday.getDate()}〜${sunday.getMonth()+1}/${sunday.getDate()}`};
 }
 async function loadWeekly(){
@@ -1845,7 +1926,7 @@ async function loadPdHistCount(id){
 }
 async function submitPartnerDev(){
   const btn=document.getElementById("pd-btn");btn.textContent="登録中...";btn.disabled=true;
-  const today=new Date().toISOString().split("T")[0];
+  const today=todayJST();
   const memoVal=document.getElementById("pd-memo").value;
   const payload={代理店名:document.getElementById("pd-nm").value,担当者:document.getElementById("pd-person").value,リード元:document.getElementById("pd-lead").value,電話番号:document.getElementById("pd-tel").value,メール:document.getElementById("pd-email").value,都道府県:document.getElementById("pd-pref").value,対応者:document.getElementById("pd-handler").value,ステータス:document.getElementById("pd-status").value,メモ:memoVal,登録日:today};
   const res=await apiPost({type:"partnerdev",action:"create",payload});
@@ -1891,7 +1972,7 @@ async function openPdDetail(id){
         ${["橋野 浩一","川﨑 慧","浦塚 弘樹","坂本 憲司","又吉 俊","千代島 奨磨"].map(p=>`<option ${d["対応者"]===p?"selected":""}>${p}</option>`).join("")}
       </select>
     </div>`;
-  document.getElementById("pd-hist-date").value=new Date().toISOString().split("T")[0];
+  document.getElementById("pd-hist-date").value=todayJST();
   document.getElementById("pd-hist-content").value="";
   document.getElementById("pd-hist-next").value="";
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
@@ -1908,7 +1989,7 @@ async function loadPdTimeline(id){
   el.innerHTML=`<div class="timeline">${sorted.map((h,i)=>{
     const isFirst=i===0,isLatest=i===sorted.length-1,cls=isFirst?"first":isLatest?"latest":"";
     return `<div class="tl-item ${cls}"><div class="tl-card ${cls}">
-      <div class="tl-date"><span>${h["対応日"]||""}</span><span class="tl-count">${i+1}回目 · ${h["対応種別"]||""}</span>
+      <div class="tl-date"><span>${fmtDate(h["対応日"]||"")}</span><span class="tl-count">${i+1}回目 · ${h["対応種別"]||""}</span>
       ${isLatest?`<span style="font-size:10px;background:rgba(52,211,153,.15);color:var(--g);padding:1px 6px;border-radius:4px;">最新</span>`:""}
       ${isFirst?`<span style="font-size:10px;background:rgba(79,125,247,.15);color:var(--ac);padding:1px 6px;border-radius:4px;">初回</span>`:""}
       </div>
@@ -2032,7 +2113,7 @@ async function submitDealer(){
     得意業種:document.getElementById("dl-industry").value,
     エリア:document.getElementById("dl-area").value,
     メモ:document.getElementById("dl-memo").value,
-    登録日:new Date().toISOString().split("T")[0],
+    登録日:todayJST(),
   };
   const res=await apiPost({type:"dealer",action:"create",payload});
   btn.textContent="登録";btn.disabled=false;
@@ -2139,13 +2220,20 @@ function renderMemberCards(){
         <div style="font-size:10px;color:var(--tx3);margin-top:3px;">左：年間予算（万円）　右：年度</div>
       </div>
       <div>
-        <label style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">担当販売店</label>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <input type="text" id="partners-${i}" value="${data.partners.join(', ')}" placeholder="M&Kソリューション, Sail株式会社" list="dealer-datalist-${i}" style="flex:1;font-size:12px;padding:6px 10px;border-radius:6px;background:var(--sf2);border:1px solid var(--bd);color:var(--tx);">
-          <datalist id="dealer-datalist-${i}">${dealerList.map(d=>`<option value="${d["販売店名"]}"></option>`).join("")}</datalist>
-          <button class="btn btn-g btn-sm" onclick="saveMemberPartners(${i},'${nm}')">保存</button>
+        <label style="font-size:12px;font-weight:700;color:var(--tx2);letter-spacing:.04em;">担当販売店</label>
+        <div style="margin-top:6px;">
+          <div id="partner-tags-${i}" style="display:flex;flex-wrap:wrap;gap:6px;min-height:32px;padding:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;">
+            ${data.partners.map(p=>`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(59,110,240,.12);color:var(--ac);padding:3px 8px;border-radius:4px;font-size:12px;font-weight:500;">${p}<button onclick="removeMemberPartner(${i},'${nm}','${p}')" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:14px;padding:0;line-height:1;">×</button></span>`).join("")}
+            ${data.partners.length===0?`<span style="font-size:11px;color:var(--tx3);">未設定</span>`:""}
+          </div>
+          <div style="display:flex;gap:6px;">
+            <select id="partner-add-${i}" style="flex:1;font-size:13px;padding:6px 8px;border-radius:6px;">
+              <option value="">＋ 販売店を追加...</option>
+              ${dealerList.filter(d=>!data.partners.includes(d["販売店名"])).map(d=>`<option value="${d["販売店名"]}">${d["販売店名"]}（${d["種別"]||""}）</option>`).join("")}
+            </select>
+            <button class="btn btn-p btn-sm" onclick="addMemberPartner(${i},'${nm}')">追加</button>
+          </div>
         </div>
-        <div style="font-size:10px;color:var(--tx3);margin-top:3px;">カンマ区切りで複数入力</div>
       </div>
       <div style="margin-top:10px;padding:8px;background:var(--sf2);border-radius:6px;font-size:11px;color:var(--tx2);">
         担当販売店：${partnersStr}
@@ -2184,6 +2272,77 @@ async function saveMemberPartners(idx, name){
     renderMemberCards();
   }
 }
+async function addMemberPartner(idx, name){
+  const sel = document.getElementById("partner-add-"+idx);
+  const val = sel?.value;
+  if(!val) return;
+  const existing = getMemberBudget(name);
+  const partners = [...new Set([...existing.partners, val])];
+  const payload = {担当者:name, 年間予算:existing.annualBudget||0, 年度:existing.fiscalYear||new Date().getFullYear(), 担当販売店:partners.join(",")};
+  const res = await apiPost({type:"member",action:"upsert",payload});
+  if(res.ok){
+    if(!memberData[name]) memberData[name]={};
+    memberData[name].partners = partners;
+    toast(name+"に"+val+"を追加しました");
+    renderMemberCards();
+  }
+}
+async function removeMemberPartner(idx, name, partner){
+  const existing = getMemberBudget(name);
+  const partners = existing.partners.filter(p=>p!==partner);
+  const payload = {担当者:name, 年間予算:existing.annualBudget||0, 年度:existing.fiscalYear||new Date().getFullYear(), 担当販売店:partners.join(",")};
+  const res = await apiPost({type:"member",action:"upsert",payload});
+  if(res.ok){
+    if(!memberData[name]) memberData[name]={};
+    memberData[name].partners = partners;
+    toast(partner+"を削除しました");
+    renderMemberCards();
+  }
+}
+
+// ============================================================
+//  PDF出力
+// ============================================================
+function exportMonthlyPDF(){
+  const lbl=document.getElementById("monthly-lbl")?.textContent||"月次レポート";
+  // 印刷用スタイルを追加
+  const style=document.createElement("style");
+  style.id="print-style";
+  style.textContent=`
+    @media print {
+      .sb,.mob-nav,.hd-r,.deal-edit-row,.add-hist-form,.week-tabs { display:none !important; }
+      .app { display:block !important; }
+      .main { display:block !important; }
+      .page { display:block !important; }
+      .page:not(#page-monthly) { display:none !important; }
+      #page-monthly { display:block !important; }
+      body { background:#fff !important; }
+      .cd { box-shadow:none !important; border:1px solid #ddd !important; }
+      * { color-adjust:exact; -webkit-print-color-adjust:exact; }
+    }
+  `;
+  document.head.appendChild(style);
+  const title=document.title;
+  document.title=lbl+" レポート";
+  window.print();
+  document.title=title;
+  setTimeout(()=>{ const el=document.getElementById("print-style"); if(el) el.remove(); },1000);
+  toast("印刷ダイアログを開きました（PDFとして保存できます）");
+}
+
+// ============================================================
+//  ソート
+// ============================================================
+let sortField="登録日", sortAsc=false;
+function sortDeals(field){
+  if(sortField===field) sortAsc=!sortAsc;
+  else { sortField=field; sortAsc=true; }
+  // ソートインジケーター更新
+  document.querySelectorAll('[id^="sort-"]').forEach(el=>el.textContent="");
+  const el=document.getElementById("sort-"+field);
+  if(el) el.textContent=sortAsc?"▲":"▼";
+  applyDealFilter();
+}
 
 // ============================================================
 //  CSVインポート
@@ -2214,9 +2373,34 @@ function downloadTemplate(type) {
 function parseCSV(text) {
   const lines = text.trim().split("\n").map(l => l.replace(/\r/,""));
   if (lines.length < 2) return { headers:[], rows:[] };
-  const headers = lines[0].split(",").map(h => h.trim());
-  const rows = lines.slice(1).map(line => {
-    const vals = line.split(",").map(v => v.trim());
+  // ヘッダー行のクォートとBOMを除去
+  const cleanVal = v => {
+    let s = (v||"").trim();
+    // BOM除去
+    if(s.charCodeAt(0)===0xFEFF) s=s.slice(1);
+    // ダブルクォート囲みを除去
+    if(s.startsWith('"') && s.endsWith('"')) s=s.slice(1,-1);
+    // エスケープされたダブルクォートを戻す
+    s=s.replace(/""/g,'"');
+    return s.trim();
+  };
+  const headers = lines[0].split(",").map(cleanVal);
+  const rows = lines.slice(1).filter(l=>l.trim()).map(line => {
+    // クォートを考慮したCSVパース
+    const vals = [];
+    let cur="", inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){
+        if(inQ && line[i+1]==='"'){vals.push("");i++;continue;}
+        inQ=!inQ;
+      } else if(ch==="," && !inQ){
+        vals.push(cleanVal(cur));cur="";
+      } else {
+        cur+=ch;
+      }
+    }
+    vals.push(cleanVal(cur));
     const obj = {};
     headers.forEach((h,i) => obj[h] = vals[i]||"");
     return obj;
@@ -2242,7 +2426,7 @@ async function runImport(type) {
   statusEl.style.color="var(--am)";
 
   let success=0, fail=0;
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayJST();
   const logLines = [];
 
   for (const row of rows) {
@@ -2316,15 +2500,38 @@ async function runImport(type) {
 
 // UTIL
 function num(obj,key){return parseInt(obj[key])||0;}
+function todayJST(){
+  const d=new Date();
+  const jst=new Date(d.getTime()+9*60*60*1000);
+  return jst.toISOString().split("T")[0];
+}
+function fmtDate(str){
+  // ISO日時・日付文字列を「2026/03/25 (火)」形式に変換
+  if(!str) return "";
+  const d=new Date(str);
+  if(isNaN(d)) return str;
+  const days=["日","月","火","水","木","金","土"];
+  // タイムゾーン補正
+  const jst=new Date(d.getTime()+9*60*60*1000);
+  const y=jst.getUTCFullYear();
+  const m=String(jst.getUTCMonth()+1).padStart(2,"0");
+  const day=String(jst.getUTCDate()).padStart(2,"0");
+  const dow=days[jst.getUTCDay()];
+  // 時刻部分があれば表示
+  const h=String(jst.getUTCHours()).padStart(2,"0");
+  const min=String(jst.getUTCMinutes()).padStart(2,"0");
+  const hasTime=str.includes("T")||str.includes(" ");
+  return hasTime?`${y}/${m}/${day} (${dow}) ${h}:${min}`:`${y}/${m}/${day} (${dow})`;
+}
 function toast(msg){const t=document.getElementById("toast");t.textContent="✅ "+msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
 
 // INIT
 const now=new Date();
 document.getElementById("today-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
 document.getElementById("rep-dt-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
-document.getElementById("r-date").value=now.toISOString().split("T")[0];
-document.getElementById("py-date").value=now.toISOString().split("T")[0];
-document.getElementById("hist-date").value=now.toISOString().split("T")[0];
+document.getElementById("r-date").value=todayJST();
+document.getElementById("py-date").value=todayJST();
+document.getElementById("hist-date").value=todayJST();
 updateSubFrame();
 checkConn();
 loadExec();
