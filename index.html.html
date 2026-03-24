@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>営業管理 | ALL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#0f1117;--sf:#181b26;--sf2:#1f2336;--sf3:#252a40;
+  --bd:#2a2f48;--ac:#4f7df7;--g:#34d399;--am:#f59e0b;--rd:#f87171;--pu:#a78bfa;
+  --tx:#e8eaf6;--tx2:#8b90b0;--tx3:#4f5470;
+  --r:10px;--fn:'Noto Sans JP',sans-serif;--mo:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--tx);font-size:14px;}
+.app{display:flex;height:100vh;overflow:hidden;}
+.sb{width:214px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.logo{padding:18px 16px 14px;border-bottom:1px solid var(--bd);}
+.logo-t{font-size:13px;font-weight:700;color:var(--ac);letter-spacing:.06em;}
+.logo-s{font-size:10px;color:var(--tx3);margin-top:2px;}
+.nav{padding:10px 8px;flex:1;overflow-y:auto;}
+.ns{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.08em;padding:6px 8px 4px;margin-top:6px;}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--tx2);font-size:12px;font-weight:500;transition:.15s;margin-bottom:1px;user-select:none;}
+.ni:hover{background:var(--sf2);color:var(--tx);}
+.ni.on{background:rgba(79,125,247,.18);color:var(--ac);}
+.ni-ic{width:18px;text-align:center;font-size:15px;}
+.ni-bd{margin-left:auto;background:var(--ac);color:#fff;font-size:10px;font-family:var(--mo);padding:1px 5px;border-radius:99px;}
+.sb-ft{padding:12px;border-top:1px solid var(--bd);}
+.u-row{display:flex;align-items:center;gap:8px;}
+.av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#7c5cfc);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.u-nm{font-size:11px;color:var(--tx2);}
+.hd{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--sf);flex-shrink:0;}
+.hd-t{font-size:15px;font-weight:700;}
+.hd-r{display:flex;align-items:center;gap:8px;}
+.ct{padding:18px 22px;flex:1;}
+.sec{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.bx{font-size:11px;font-family:var(--mo);padding:2px 7px;border-radius:4px;font-weight:500;}
+.bx-b{background:rgba(79,125,247,.15);color:var(--ac);}
+.bx-g{background:rgba(52,211,153,.15);color:var(--g);}
+.bx-a{background:rgba(245,158,11,.15);color:var(--am);}
+.bx-r{background:rgba(248,113,113,.15);color:var(--rd);}
+.cd{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.cd-t{font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:12px;}
+.kg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;}
+.kpi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.bl::after{background:var(--ac);}.kpi.gr::after{background:var(--g);}.kpi.am::after{background:var(--am);}.kpi.rd::after{background:var(--rd);}
+.kpi-l{font-size:11px;color:var(--tx2);margin-bottom:4px;}
+.kpi-v{font-size:26px;font-weight:700;font-family:var(--mo);line-height:1;margin-bottom:4px;}
+.kpi-v.bl{color:var(--ac);}.kpi-v.gr{color:var(--g);}.kpi-v.am{color:var(--am);}.kpi-v.rd{color:var(--rd);}
+.kpi-s{font-size:10px;color:var(--tx3);}
+.up{color:var(--g);}.dn{color:var(--rd);}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.pc{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px;}
+.pc-h{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pc-n{font-size:13px;font-weight:700;}
+.pc-s{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ps-b{background:var(--sf3);border-radius:5px;padding:8px;text-align:center;}
+.ps-n{font-size:16px;font-weight:700;font-family:var(--mo);}
+.ps-t{font-size:9px;color:var(--tx3);margin-top:2px;}
+.ch-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
+.pill{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;}
+.pe{background:rgba(79,125,247,.15);color:var(--ac);}
+.pp{background:rgba(52,211,153,.15);color:var(--g);}
+.fn-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.fn-l{font-size:11px;color:var(--tx2);width:68px;flex-shrink:0;}
+.fn-b{flex:1;height:18px;background:var(--sf3);border-radius:3px;overflow:hidden;}
+.fn-f{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-family:var(--mo);font-weight:500;}
+.fn-c{font-size:12px;font-family:var(--mo);font-weight:700;width:28px;text-align:right;}
+.cf-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.cf-ml{font-size:11px;color:var(--tx2);width:34px;flex-shrink:0;font-family:var(--mo);}
+.cf-bo{flex:1;height:22px;background:var(--sf3);border-radius:4px;overflow:hidden;}
+.cf-bars{display:flex;height:100%;}
+.cf-seg-c{background:rgba(52,211,153,.5);}
+.cf-seg-p{background:rgba(245,158,11,.35);}
+.cf-tot{font-size:11px;width:58px;text-align:right;font-family:var(--mo);flex-shrink:0;}
+.py-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);gap:10px;}
+.py-row:last-child{border-bottom:none;}
+.py-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.py-info{flex:1;}
+.py-nm{font-size:12px;font-weight:500;}
+.py-mt{font-size:10px;color:var(--tx3);margin-top:1px;}
+.py-amt{font-size:13px;font-weight:700;font-family:var(--mo);color:var(--g);}
+.py-dt{font-size:10px;color:var(--tx3);}
+.pst{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;}
+.pst-p{background:rgba(245,158,11,.15);color:var(--am);}
+.pst-c{background:rgba(52,211,153,.15);color:var(--g);}
+.pst-r{background:rgba(79,125,247,.15);color:var(--ac);}
+.pt-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);gap:10px;transition:.1s;}
+.pt-row:last-child{border-bottom:none;}
+.pt-rk{width:18px;font-size:11px;color:var(--tx3);font-family:var(--mo);}
+.pt-in{flex:1;}
+.pt-nm{font-size:13px;font-weight:500;}
+.pt-rp{font-size:10px;color:var(--tx3);}
+.pt-st{display:flex;gap:14px;}
+.pti{text-align:center;}
+.pti-v{font-size:14px;font-weight:700;font-family:var(--mo);}
+.pti-l{font-size:9px;color:var(--tx3);}
+
+/* DEAL LIST */
+.dl-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--bd);gap:10px;cursor:pointer;transition:.15s;}
+.dl-row:hover{background:var(--sf2);}
+.dl-row:last-child{border-bottom:none;}
+.dl-ch{width:4px;height:52px;border-radius:3px;flex-shrink:0;}
+.dl-in{flex:1;min-width:0;}
+.dl-nm{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;}
+.dl-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:3px;}
+.dl-sub{font-size:10px;color:var(--tx3);}
+.dl-rt{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.dl-am{font-size:14px;font-weight:700;font-family:var(--mo);color:var(--g);}
+.dl-pay{font-size:10px;color:var(--am);font-family:var(--mo);}
+.dl-hist{font-size:10px;color:var(--tx3);}
+/* 補助金タグ */
+.sub-tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;background:var(--sf3);color:var(--tx2);white-space:nowrap;}
+/* 検索バー */
+.deal-search{padding:12px 16px;border-bottom:1px solid var(--bd);background:var(--sf);display:flex;flex-direction:column;gap:8px;}
+.search-row{display:flex;gap:8px;}
+.search-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:7px 12px;font-size:12px;color:var(--tx);font-family:var(--fn);outline:none;transition:.15s;}
+.search-input:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(79,125,247,.1);}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+.filter-chip{font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;background:var(--sf2);color:var(--tx2);border:1px solid var(--bd);transition:.15s;white-space:nowrap;}
+.filter-chip.on{background:rgba(79,125,247,.18);color:var(--ac);border-color:rgba(79,125,247,.3);}
+.filter-chip.grn.on{background:rgba(52,211,153,.15);color:var(--g);border-color:rgba(52,211,153,.3);}
+.filter-chip.amb.on{background:rgba(245,158,11,.15);color:var(--am);border-color:rgba(245,158,11,.3);}
+.filter-chip.red.on{background:rgba(248,113,113,.12);color:var(--rd);border-color:rgba(248,113,113,.3);}
+.deal-count{font-size:11px;color:var(--tx3);padding:0 16px 8px;}
+
+/* RANK & STATUS */
+.rank{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:4px;}
+.rA{background:rgba(248,113,113,.2);color:var(--rd);}
+.rB{background:rgba(245,158,11,.2);color:var(--am);}
+.rC{background:rgba(79,125,247,.15);color:var(--ac);}
+.st{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;}
+.st-p{background:rgba(79,125,247,.12);color:var(--ac);}
+.st-n{background:rgba(245,158,11,.12);color:var(--am);}
+.st-i{background:rgba(52,211,153,.12);color:var(--g);}
+.st-w{background:rgba(52,211,153,.2);color:#10b981;border:1px solid rgba(52,211,153,.25);}
+.st-l{background:rgba(248,113,113,.1);color:var(--rd);}
+
+/* ★ DEAL DETAIL PAGE */
+.deal-header{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.deal-header-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.deal-title{font-size:18px;font-weight:700;flex:1;}
+.deal-meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.deal-meta-item{background:var(--sf2);border-radius:7px;padding:10px 12px;}
+.deal-meta-label{font-size:10px;color:var(--tx3);margin-bottom:3px;}
+.deal-meta-value{font-size:13px;font-weight:500;}
+.deal-edit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);}
+
+/* ★ TIMELINE */
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:0;width:1px;background:var(--bd);}
+.tl-item{position:relative;margin-bottom:16px;}
+.tl-item::before{content:'';position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--sf);border:2px solid var(--bd);}
+.tl-item.first::before{border-color:var(--ac);background:var(--ac);}
+.tl-item.latest::before{border-color:var(--g);background:var(--g);}
+.tl-card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;}
+.tl-card.first{border-color:rgba(79,125,247,.3);}
+.tl-card.latest{border-color:rgba(52,211,153,.3);}
+.tl-date{font-size:11px;font-family:var(--mo);color:var(--tx3);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.tl-count{font-size:10px;background:var(--sf2);padding:1px 6px;border-radius:4px;color:var(--tx2);}
+.tl-content{font-size:12px;color:var(--tx);line-height:1.7;white-space:pre-wrap;}
+.tl-next{margin-top:8px;padding:8px 10px;background:rgba(245,158,11,.08);border-radius:6px;border-left:3px solid var(--am);}
+.tl-next-label{font-size:10px;color:var(--am);font-weight:700;margin-bottom:3px;}
+.tl-next-text{font-size:12px;color:var(--tx2);white-space:pre-wrap;}
+
+/* ADD HISTORY FORM */
+.add-hist-form{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:14px;}
+.add-hist-form .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{text-align:left;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:7px 10px;border-bottom:1px solid var(--bd);}
+tbody tr{border-bottom:1px solid var(--bd);transition:.1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--sf2);}
+td{padding:9px 10px;font-size:12px;}
+.td-n{font-weight:500;}
+.td-m{font-family:var(--mo);font-weight:500;}
+.td-m.gr{color:var(--g);}.td-m.am{color:var(--am);}.td-m.rd{color:var(--rd);}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;}
+.fm{display:flex;flex-direction:column;gap:4px;}
+.fm.full{grid-column:1/-1;}
+label.lb{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;}
+input,select,textarea{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--tx);font-family:var(--fn);outline:none;transition:.15s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(79,125,247,.1);}
+textarea{resize:vertical;min-height:72px;}
+select option{background:var(--sf2);}
+
+/* REPORT TABS */
+.rep-tabs{display:flex;gap:0;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1px solid var(--bd);}
+.rtab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;color:var(--tx2);background:var(--sf2);transition:.15s;border:none;}
+.rtab.on{background:rgba(79,125,247,.18);color:var(--ac);}
+.ch-f{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:12px;}
+.ch-h{padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;}
+.ch-end{background:rgba(79,125,247,.1);color:var(--ac);}
+.ch-prt{background:rgba(52,211,153,.08);color:var(--g);}
+.ch-b{padding:12px 14px;display:grid;gap:10px;}
+.ch-b4{grid-template-columns:repeat(4,1fr);}
+.ch-b3{grid-template-columns:repeat(3,1fr);}
+.nf{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.nf label{font-size:10px;color:var(--tx3);text-align:center;}
+.nc{display:flex;align-items:center;}
+.nb{width:26px;height:32px;background:var(--bd);border:none;color:var(--tx);cursor:pointer;font-size:15px;transition:.1s;display:flex;align-items:center;justify-content:center;}
+.nb:first-child{border-radius:5px 0 0 5px;}
+.nb:last-child{border-radius:0 5px 5px 0;}
+.nb:hover{background:var(--ac);}
+.nd{width:40px;height:32px;background:var(--sf);border:1px solid var(--bd);border-left:none;border-right:none;display:flex;align-items:center;justify-content:center;font-family:var(--mo);font-weight:700;font-size:15px;}
+
+/* BTN */
+.btn{padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--fn);transition:.15s;display:inline-flex;align-items:center;gap:5px;}
+.btn-p{background:var(--ac);color:#fff;}.btn-p:hover{background:#3d6ae0;}
+.btn-g{background:transparent;color:var(--tx2);border:1px solid var(--bd);}.btn-g:hover{background:var(--sf2);}
+.btn-gr{background:var(--g);color:#064e3b;}
+.btn-am{background:var(--am);color:#1a0a00;}
+.btn-sm{padding:5px 11px;font-size:11px;}
+.btn-back{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);cursor:pointer;padding:5px 0;margin-bottom:12px;background:none;border:none;}
+.btn-back:hover{color:var(--tx);}
+
+.week-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.wtab{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--sf2);color:var(--tx2);border:1px solid var(--bd);transition:.15s;}
+.wtab.on{background:rgba(79,125,247,.18);color:var(--ac);border-color:rgba(79,125,247,.3);}
+.partner-note{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--am);}
+.dv{height:1px;background:var(--bd);margin:14px 0;}
+.page{display:none;}
+.page.on{display:block;}
+.ld{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx3);padding:16px;}
+.ld-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);animation:ld .8s ease-in-out infinite;}
+.ld-dot:nth-child(2){animation-delay:.16s;}
+.ld-dot:nth-child(3){animation-delay:.32s;}
+@keyframes ld{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--g);color:#064e3b;font-size:12px;font-weight:700;padding:10px 16px;border-radius:8px;opacity:0;transition:.3s;z-index:999;pointer-events:none;}
+#toast.show{opacity:1;}
+#conn-status{font-size:11px;display:flex;align-items:center;gap:5px;color:var(--tx3);}
+.conn-dot{width:7px;height:7px;border-radius:50%;}
+.conn-dot.ok{background:var(--g);}.conn-dot.err{background:var(--rd);}.conn-dot.wait{background:var(--am);}
+.ns-sub{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.08em;padding:4px 8px 2px 26px;}
+.ni-sub{display:flex;align-items:center;gap:9px;padding:6px 10px 6px 26px;border-radius:7px;cursor:pointer;color:var(--tx2);font-size:12px;font-weight:500;transition:.15s;margin-bottom:1px;user-select:none;}
+.ni-sub:hover{background:var(--sf2);color:var(--tx);}
+.ni-sub.on{background:rgba(79,125,247,.18);color:var(--ac);}
+.ni-parent{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--tx2);font-size:12px;font-weight:500;transition:.15s;margin-bottom:1px;user-select:none;}
+.ni-parent:hover{background:var(--sf2);color:var(--tx);}
+.ni-parent.on{color:var(--ac);}
+.ni-arrow{margin-left:auto;font-size:10px;transition:.2s;}
+.ni-arrow.open{transform:rotate(90deg);}
+.sub-menu{overflow:hidden;transition:max-height .2s ease;max-height:0;}
+.sub-menu.open{max-height:200px;}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--bd);padding:6px 0 10px;z-index:100;}
+.mob-nav-i{display:flex;justify-content:space-around;}
+.mn{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:6px;color:var(--tx3);transition:.15s;}
+.mn.on{color:var(--ac);}
+.mn-ic{font-size:18px;}
+.mn-lb{font-size:9px;font-weight:500;}
+@media(max-width:900px){.sb{display:none;}.mob-nav{display:block;}.main{padding-bottom:64px;}.kg{grid-template-columns:1fr 1fr;}.pg{grid-template-columns:1fr;}.deal-meta-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.kg{grid-template-columns:1fr 1fr;}.fg,.fg3,.fg4{grid-template-columns:1fr;}.ch-b4,.ch-b3{grid-template-columns:1fr 1fr;}.deal-meta-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sb">
+  <div class="logo">
+    <div class="logo-t">SALES HUB</div>
+    <div class="logo-s">株式会社ALL</div>
+  </div>
+  <nav class="nav">
+    <div class="ni on" onclick="go('exec',this,'m0')"><span class="ni-ic">👁️</span>ダッシュボード</div>
+    <div class="ni" onclick="go('cashflow',this,'m1')"><span class="ni-ic">💴</span>入金予定</div>
+    <div class="ns">営業部</div>
+    <div class="ni" onclick="go('report',this,'m2')"><span class="ni-ic">📝</span>日報入力</div>
+    <div class="ni-parent" id="nav-deals-parent" onclick="toggleDealsMenu()"><span class="ni-ic">💼</span>商談管理<span class="ni-bd" id="nb-d">—</span><span class="ni-arrow" id="deals-arrow">▶</span></div>
+    <div class="sub-menu" id="deals-submenu">
+      <div class="ni-sub" id="nav-deals-end" onclick="go('deals',null,'m3');setDealsSubActive('end')"><span class="ni-ic">🏢</span>エンド商談</div>
+      <div class="ni-sub" id="nav-deals-partner" onclick="go('partner-dev',null,'m3');setDealsSubActive('partner')"><span class="ni-ic">🤝</span>販売店開拓</div>
+    </div>
+    <div class="ns">サポート部</div>
+    <div class="ni" onclick="go('partner',this,'m4')"><span class="ni-ic">🏪</span>完クロ案件管理</div>
+    <div class="ni" onclick="go('dealer',this,'mx3')"><span class="ni-ic">🏢</span>販売店マスタ</div>
+    <div class="ns">データ管理</div>
+    <div class="ni" onclick="go('members',this,'mx')"><span class="ni-ic">👥</span>メンバー管理</div>
+    <div class="ni" onclick="go('import',this,'mx2')"><span class="ni-ic">📥</span>CSVインポート</div>
+    <div class="ns">レポート</div>
+    <div class="ni" onclick="go('weekly',this,'m5')"><span class="ni-ic">📋</span>週次レポート</div>
+    <div class="ni" onclick="go('monthly',this,'m6')"><span class="ni-ic">📅</span>月次レポート</div>
+  </nav>
+  <div class="sb-ft">
+    <div class="u-row"><div class="av" id="sb-av">?</div><div class="u-nm" id="sb-nm">未選択</div></div>
+    <div id="conn-status" style="margin-top:8px;"><div class="conn-dot wait" id="cdot"></div><span id="ctxt">接続確認中...</span></div>
+  </div>
+</aside>
+
+<div class="main" id="mainScroll">
+
+<!-- 経営ダッシュボード -->
+<div class="page on" id="page-exec">
+  <div class="hd"><div class="hd-t">👁️ 経営ダッシュボード</div><div class="hd-r"><span class="bx bx-b" id="today-lbl"></span><button class="btn btn-g btn-sm" onclick="loadExec()">↻ 更新</button></div></div>
+  <div class="ct">
+    <div class="sec">今月の主要指標</div>
+    <div class="kg">
+      <div class="kpi am"><div class="kpi-l">入金見込（受注）</div><div class="kpi-v am" id="kpi-pay">—</div><div class="kpi-s">受注案件の金額合計</div></div>
+      <div class="kpi gr" style="grid-column:span 1;"><div class="kpi-l">入金予定（採択）</div><div class="kpi-v gr" id="kpi-adopted">—</div><div class="kpi-s">採択案件の金額合計</div></div>
+      <div class="kpi gr"><div class="kpi-l">エンド商談 内示率</div><div class="kpi-v gr" id="kpi-tu">—</div><div class="kpi-s">内示÷商談数</div></div>
+      <div class="kpi bl"><div class="kpi-l">今日の全商談件数</div><div class="kpi-v bl" id="kpi-acts">—</div><div class="kpi-s">全員合計（本日）</div></div>
+      <div class="kpi rd"><div class="kpi-l">今月 キャンセル</div><div class="kpi-v rd" id="kpi-cancel">—</div><div class="kpi-s">日報集計値</div></div>
+    </div>
+    <div class="sec">担当者別 本日の活動</div>
+    <div class="pg" id="exec-pg"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="cd"><div class="cd-t">エンド商談 フェーズ分布（今月）</div><div id="exec-funnel"></div></div>
+      <div class="cd"><div class="cd-t">販売店別 TU受領（今月）</div><div id="exec-partner-rank"></div></div>
+    </div>
+    <div class="cd"><div class="cd-t">今後4ヶ月 入金見通し</div><div id="exec-cfbar"></div></div>
+  </div>
+</div>
+
+<!-- 入金予定 -->
+<div class="page" id="page-cashflow">
+  <div class="hd"><div class="hd-t">💴 入金予定管理</div><div class="hd-r"><button class="btn btn-p btn-sm" onclick="toggleAddPay()">＋ 入金予定追加</button></div></div>
+  <div class="ct">
+    <div class="sec">月別 入金見通し</div>
+    <div class="cd" id="cf-bar-cd"></div>
+    <div class="cd" id="add-pay-cd" style="display:none;">
+      <div class="cd-t">入金予定を追加</div>
+      <div class="fg" style="margin-bottom:10px;">
+        <div class="fm"><label class="lb">案件名</label><input type="text" id="py-deal" placeholder="〇〇社 IT補助金"></div>
+        <div class="fm"><label class="lb">入金種別</label><select id="py-type"><option>交付決定時</option><option>実績報告後（補助金振込）</option><option>受注時一括</option><option>中間払い</option><option>最終払い</option></select></div>
+        <div class="fm"><label class="lb">入金予定日</label><input type="date" id="py-date"></div>
+        <div class="fm"><label class="lb">金額（万円）</label><input type="number" id="py-amt" placeholder="0"></div>
+        <div class="fm"><label class="lb">ステータス</label><select id="py-st"><option value="pending">見込（未確定）</option><option value="confirmed">確定</option><option value="received">入金済</option></select></div>
+      </div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" onclick="submitPayment()">追加</button><button class="btn btn-g btn-sm" onclick="toggleAddPay()">キャンセル</button></div>
+    </div>
+    <div class="sec">入金予定一覧</div>
+    <div class="cd" style="padding:0 16px;" id="pay-list"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+  </div>
+</div>
+
+<!-- 日報入力 -->
+<div class="page" id="page-report">
+  <div class="hd"><div class="hd-t">📝 日報入力</div><div class="hd-r"><span class="bx bx-a" id="rep-dt-lbl"></span></div></div>
+  <div class="ct">
+    <div class="cd">
+      <div class="fg" style="margin-bottom:14px;">
+        <div class="fm"><label class="lb">日付</label><input type="date" id="r-date"></div>
+        <div class="fm"><label class="lb">担当者</label><select id="r-person" onchange="updateSbUser()"><option>橋野 浩一</option><option>川﨑 慧</option><option>浦塚 弘樹</option><option>坂本 憲司</option><option>又吉 俊</option><option>千代島 奨磨</option></select></div>
+      </div>
+
+      <!-- 直販 -->
+      <div class="ch-f">
+        <div class="ch-h ch-end">🏢 直販</div>
+        <div class="ch-b ch-b4">
+          <div class="nf"><label>訪問件数</label><div class="nc"><button class="nb" onclick="cn('d_visit',-1)">−</button><div class="nd" id="d_visit">0</div><button class="nb" onclick="cn('d_visit',1)">＋</button></div></div>
+          <div class="nf"><label>新規見込</label><div class="nc"><button class="nb" onclick="cn('d_prospect',-1)">−</button><div class="nd" id="d_prospect">0</div><button class="nb" onclick="cn('d_prospect',1)">＋</button></div></div>
+          <div class="nf"><label>内示</label><div class="nc"><button class="nb" onclick="cn('d_ind',-1)">−</button><div class="nd" id="d_ind">0</div><button class="nb" onclick="cn('d_ind',1)">＋</button></div></div>
+          <div class="nf"><label>受注</label><div class="nc"><button class="nb" onclick="cn('d_won',-1)">−</button><div class="nd" id="d_won">0</div><button class="nb" onclick="cn('d_won',1)">＋</button></div></div>
+        </div>
+      </div>
+
+      <!-- トスアップ -->
+      <div class="ch-f">
+        <div class="ch-h ch-prt">🔄 トスアップ</div>
+        <div class="ch-b ch-b4">
+          <div class="nf"><label>受領件数</label><div class="nc"><button class="nb" onclick="cn('t_recv',-1)">−</button><div class="nd" id="t_recv">0</div><button class="nb" onclick="cn('t_recv',1)">＋</button></div></div>
+          <div class="nf"><label>商談件数</label><div class="nc"><button class="nb" onclick="cn('t_nego',-1)">−</button><div class="nd" id="t_nego">0</div><button class="nb" onclick="cn('t_nego',1)">＋</button></div></div>
+          <div class="nf"><label>内示</label><div class="nc"><button class="nb" onclick="cn('t_ind',-1)">−</button><div class="nd" id="t_ind">0</div><button class="nb" onclick="cn('t_ind',1)">＋</button></div></div>
+          <div class="nf"><label>受注</label><div class="nc"><button class="nb" onclick="cn('t_won',-1)">−</button><div class="nd" id="t_won">0</div><button class="nb" onclick="cn('t_won',1)">＋</button></div></div>
+        </div>
+      </div>
+
+      <!-- 販売店商談 -->
+      <div class="ch-f">
+        <div class="ch-h" style="background:rgba(167,139,250,.1);color:var(--pu);">🤝 販売店商談</div>
+        <div class="ch-b" style="grid-template-columns:1fr 1fr;padding:12px 14px;">
+          <div class="nf"><label>新規販売店</label><div class="nc"><button class="nb" onclick="cn('p_new',-1)">−</button><div class="nd" id="p_new">0</div><button class="nb" onclick="cn('p_new',1)">＋</button></div></div>
+          <div class="nf"><label>既存販売店</label><div class="nc"><button class="nb" onclick="cn('p_exist',-1)">−</button><div class="nd" id="p_exist">0</div><button class="nb" onclick="cn('p_exist',1)">＋</button></div></div>
+        </div>
+      </div>
+
+      <!-- エンド対応 -->
+      <div class="ch-f">
+        <div class="ch-h" style="background:rgba(56,189,248,.1);color:#38bdf8;">📋 エンド対応（接触）</div>
+        <div class="ch-b ch-b4">
+          <div class="nf"><label>書類回収</label><div class="nc"><button class="nb" onclick="cn('c_doc',-1)">−</button><div class="nd" id="c_doc">0</div><button class="nb" onclick="cn('c_doc',1)">＋</button></div></div>
+          <div class="nf"><label>クレーム対応</label><div class="nc"><button class="nb" onclick="cn('c_claim',-1)">−</button><div class="nd" id="c_claim">0</div><button class="nb" onclick="cn('c_claim',1)">＋</button></div></div>
+          <div class="nf"><label>納品対応</label><div class="nc"><button class="nb" onclick="cn('c_deliver',-1)">−</button><div class="nd" id="c_deliver">0</div><button class="nb" onclick="cn('c_deliver',1)">＋</button></div></div>
+          <div class="nf"><label>打ち合わせ</label><div class="nc"><button class="nb" onclick="cn('c_mtg',-1)">−</button><div class="nd" id="c_mtg">0</div><button class="nb" onclick="cn('c_mtg',1)">＋</button></div></div>
+        </div>
+      </div>
+
+      <div class="dv"></div>
+      <div class="sec">個人目標 進捗</div>
+      <div class="fg3" style="margin-bottom:12px;">
+        <div class="fm"><label class="lb">目標1</label><input type="text" id="g1" placeholder="例：新規訪問3件"></div>
+        <div class="fm"><label class="lb">目標2</label><input type="text" id="g2" placeholder="例：TU商談2件"></div>
+        <div class="fm"><label class="lb">目標3</label><input type="text" id="g3" placeholder="例：販売店訪問1件"></div>
+      </div>
+      <div class="fm" style="margin-bottom:16px;">
+        <label class="lb">今日のトピック・特記事項</label>
+        <textarea id="r-topic" placeholder="商談の手応え、販売店の動き、懸案事項など"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-p" id="rep-btn" onclick="submitReport()">📨 日報を送信</button>
+        <button class="btn btn-g" onclick="clearRep()">クリア</button>
+        <span id="rep-status" style="font-size:11px;color:var(--tx3);"></span>
+      </div>
+    </div>
+    <div class="cd" id="rep-preview" style="display:none;"><div class="cd-t">✅ 送信済み（本日）</div><div id="rep-preview-body"></div></div>
+  </div>
+</div>
+
+<!-- ★案件管理（一覧） -->
+<div class="page" id="page-deals">
+  <div class="hd">
+    <div class="hd-t">💼 案件管理</div>
+    <div class="hd-r"><button class="btn btn-p btn-sm" onclick="toggleAddDeal()">＋ 新規</button></div>
+  </div>
+  <!-- 検索＆フィルターバー -->
+  <div class="deal-search">
+    <div class="search-row">
+      <input class="search-input" id="dl-search" type="text" placeholder="🔍  案件名・担当者・販売店で検索..." oninput="applyDealFilter()">
+    </div>
+    <div class="filter-row">
+      <span style="font-size:10px;color:var(--tx3);align-self:center;">ステータス：</span>
+      <div class="filter-chip on" id="fc-all" onclick="setStatusFilter('all')">すべて</div>
+      <div class="filter-chip" id="fc-prospect" onclick="setStatusFilter('prospect')">見込</div>
+      <div class="filter-chip amb" id="fc-negotiating" onclick="setStatusFilter('negotiating')">商談中</div>
+      <div class="filter-chip amb" id="fc-indicated" onclick="setStatusFilter('indicated')">内示</div>
+      <div class="filter-chip grn" id="fc-ordered" onclick="setStatusFilter('ordered')">受注</div>
+      <div class="filter-chip grn" id="fc-applying" onclick="setStatusFilter('applying')">申請中</div>
+      <div class="filter-chip grn" id="fc-adopted" onclick="setStatusFilter('adopted')">採択</div>
+      <div class="filter-chip red" id="fc-lost" onclick="setStatusFilter('lost')">失注</div>
+      <div class="filter-chip red" id="fc-rejected" onclick="setStatusFilter('rejected')">不採択</div>
+      <span style="font-size:10px;color:var(--tx3);padding-left:8px;align-self:center;">ランク：</span>
+      <div class="filter-chip red" id="fr-A" onclick="setRankFilter('A')">A</div>
+      <div class="filter-chip amb" id="fr-B" onclick="setRankFilter('B')">B</div>
+      <div class="filter-chip" id="fr-C" onclick="setRankFilter('C')">C</div>
+      <span style="font-size:10px;color:var(--tx3);padding-left:8px;align-self:center;">補助金：</span>
+      <div class="filter-chip" id="fs-IT" onclick="setSubFilter('デジタル・AI導入補助金')">デジタルAI</div>
+      <div class="filter-chip" id="fs-jizoku" onclick="setSubFilter('小規模事業者持続化補助金')">持続化</div>
+      <div class="filter-chip" id="fs-mono" onclick="setSubFilter('ものづくり補助金')">ものづくり</div>
+      <div class="filter-chip" id="fs-stock" onclick="setSubFilter('ストック商材')">ストック</div>
+    </div>
+  </div>
+  <div class="deal-count" id="deal-count"></div>
+  <div class="ct" style="padding-top:8px;">
+    <div class="cd" id="add-deal-cd" style="display:none;">
+      <div class="cd-t">新規案件登録</div>
+      <div class="fg" style="margin-bottom:10px;">
+        <div class="fm"><label class="lb">案件名・屋号名</label><input type="text" id="nd-nm" placeholder="〇〇社 / 屋号名"></div>
+        <div class="fm"><label class="lb">チャネル</label><select id="nd-ch"><option value="end">エンド商談（直販）</option><option value="tossup">トスアップ（販売店経由）</option></select></div>
+        <div class="fm"><label class="lb">申請補助金・商材</label>
+          <select id="nd-sub" onchange="updateSubFrame()">
+            <option value="デジタル・AI導入補助金">デジタル・AI導入補助金</option>
+            <option value="小規模事業者持続化補助金">小規模事業者持続化補助金</option>
+            <option value="ものづくり補助金">ものづくり補助金</option>
+            <option value="省力化投資補助金">省力化投資補助金</option>
+            <option value="業務改善助成金">業務改善助成金</option>
+            <option value="ストック商材">ストック商材</option>
+            <option value="その他">その他（補助金なし含む）</option>
+          </select>
+        </div>
+        <div class="fm"><label class="lb">申請枠</label><select id="nd-frame"><option value="">—</option></select></div>
+        <div class="fm"><label class="lb">販売店（TU案件のみ）</label>
+          <select id="nd-pt-select" onchange="onDealerSelectChange(this.value)" style="margin-bottom:4px;">
+            <option value="">— 選択 —</option>
+          </select>
+          <input type="text" id="nd-pt" placeholder="手入力（マスタにない場合）" style="display:none;">
+        </div>
+        <div class="fm"><label class="lb">担当者</label><select id="nd-ps"><option>橋野 浩一</option><option>川﨑 慧</option><option>浦塚 弘樹</option><option>坂本 憲司</option><option>又吉 俊</option><option>千代島 奨磨</option></select></div>
+        <div class="fm"><label class="lb">概算金額（万円）</label><input type="number" id="nd-am" placeholder="0"></div>
+        <div class="fm"><label class="lb">粗利（万円）</label><input type="number" id="nd-gp" placeholder="0"></div>
+        <div class="fm"><label class="lb">ステータス</label><select id="nd-st"><option value="prospect">見込</option><option value="negotiating">商談中</option><option value="indicated">内示</option><option value="ordered">受注</option><option value="applying">申請中</option><option value="adopted">採択</option><option value="lost">失注</option><option value="rejected">不採択</option></select></div>
+        <div class="fm"><label class="lb">見込ランク</label><select id="nd-rank"><option value="A">A（口頭内示・ほぼ確定）</option><option value="B">B（見積提示・前向き）</option><option value="C">C（検討段階）</option></select></div>
+        <div class="fm"><label class="lb">入金予定月</label><input type="month" id="nd-pm"></div>
+        <div class="fm"><label class="lb">申請回</label><input type="text" id="nd-round" placeholder="第1回・第2回など"></div>
+        <div class="fm"><label class="lb">申請業者</label><input type="text" id="nd-vendor" placeholder="申請を担当する業者名"></div>
+        <div class="fm"><label class="lb">外注先費用（概算・万円）</label><input type="number" id="nd-outsource" placeholder="0"></div>
+        <div class="fm"><label class="lb">商材</label><input type="text" id="nd-item" placeholder="Q'sConnect・ITツールなど"></div>
+        <div class="fm full"><label class="lb">初回商談内容・備考</label><textarea id="nd-memo" placeholder="初回商談の内容、顧客の状況など" style="min-height:56px;"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" id="deal-btn" onclick="submitDeal()">登録</button><button class="btn btn-g btn-sm" onclick="toggleAddDeal()">キャンセル</button></div>
+    </div>
+    <div style="overflow-x:auto;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:14px;" id="deal-list"><div class="ld" style="padding:16px;"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+  </div>
+</div>
+
+<!-- ★案件詳細（カルテ） -->
+<div class="page" id="page-deal-detail">
+  <div class="hd">
+    <div class="hd-t">💼 案件カルテ</div>
+    <div class="hd-r"><button class="btn btn-g btn-sm" onclick="go('deals',null,'m3')">← 一覧に戻る</button></div>
+  </div>
+  <div class="ct">
+    <!-- 案件ヘッダー -->
+    <div class="deal-header" id="detail-header"></div>
+
+    <!-- 商談履歴追加フォーム -->
+    <div class="sec">商談履歴を追加</div>
+    <div class="add-hist-form">
+      <div class="fg" style="margin-bottom:10px;">
+        <div class="fm"><label class="lb">商談日</label><input type="date" id="hist-date"></div>
+        <div class="fm"><label class="lb">商談種別</label>
+          <select id="hist-type"><option>初回商談</option><option>再商談</option><option>フォロー商談</option><option>定例MTG</option><option>電話フォロー</option><option>内示確認</option><option>受注確認</option></select>
+        </div>
+        <div class="fm full"><label class="lb">商談内容・今日話したこと</label><textarea id="hist-content" placeholder="商談内容、顧客の反応、懸念点など"></textarea></div>
+        <div class="fm full"><label class="lb">次回アクション・次回までにすること</label><textarea id="hist-next" placeholder="次回訪問日、提出する資料、確認事項など"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-p btn-sm" id="hist-btn" onclick="submitHistory()">📝 商談記録を追加</button>
+        <span id="hist-status" style="font-size:11px;color:var(--tx3);"></span>
+      </div>
+    </div>
+
+    <!-- タイムライン -->
+    <div class="sec">商談履歴タイムライン</div>
+    <div id="timeline-wrap"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+  </div>
+</div>
+
+<!-- ★販売店開拓管理 -->
+<div class="page" id="page-partner-dev">
+  <div class="hd">
+    <div class="hd-t">🤝 販売店開拓管理</div>
+    <div class="hd-r">
+      <button class="btn btn-p btn-sm" onclick="toggleAddPartnerDev()">＋ 新規登録</button>
+    </div>
+  </div>
+  <!-- 検索＆フィルターバー -->
+  <div class="deal-search">
+    <div class="search-row">
+      <input class="search-input" id="pd-search" type="text" placeholder="🔍  代理店名・担当者・対応者で検索..." oninput="applyPartnerDevFilter()">
+    </div>
+    <div class="filter-row">
+      <span style="font-size:10px;color:var(--tx3);align-self:center;">ステータス：</span>
+      <div class="filter-chip on" id="pf-all" onclick="setPdStatusFilter('all')">すべて</div>
+      <div class="filter-chip" id="pf-none" onclick="setPdStatusFilter('非対応')">非対応</div>
+      <div class="filter-chip" id="pf-first" onclick="setPdStatusFilter('1stコンタクト')">1st</div>
+      <div class="filter-chip amb" id="pf-meeting" onclick="setPdStatusFilter('面談済み')">面談済み</div>
+      <div class="filter-chip amb" id="pf-handling" onclick="setPdStatusFilter('対応中')">対応中</div>
+      <div class="filter-chip amb" id="pf-considering" onclick="setPdStatusFilter('検討中')">検討中</div>
+      <div class="filter-chip grn" id="pf-contract" onclick="setPdStatusFilter('契約')">契約</div>
+      <div class="filter-chip red" id="pf-exclude" onclick="setPdStatusFilter('除外')">除外</div>
+      <div class="filter-chip red" id="pf-close" onclick="setPdStatusFilter('CLOSE')">CLOSE</div>
+    </div>
+  </div>
+  <div class="deal-count" id="pd-count"></div>
+  <div class="ct" style="padding-top:8px;">
+    <!-- 新規登録フォーム -->
+    <div class="cd" id="add-pd-cd" style="display:none;">
+      <div class="cd-t">新規代理店を登録</div>
+      <div class="fg" style="margin-bottom:10px;">
+        <div class="fm"><label class="lb">代理店名</label><input type="text" id="pd-nm" placeholder="〇〇株式会社"></div>
+        <div class="fm"><label class="lb">担当者名</label><input type="text" id="pd-person" placeholder="山田 太郎"></div>
+        <div class="fm"><label class="lb">リード元</label>
+          <select id="pd-lead"><option>代理店募集.com</option><option>紹介</option><option>展示会</option><option>Web問い合わせ</option><option>その他</option></select>
+        </div>
+        <div class="fm"><label class="lb">電話番号</label><input type="text" id="pd-tel" placeholder="090-0000-0000"></div>
+        <div class="fm"><label class="lb">メールアドレス</label><input type="text" id="pd-email" placeholder="example@email.com"></div>
+        <div class="fm"><label class="lb">都道府県</label><input type="text" id="pd-pref" placeholder="東京都"></div>
+        <div class="fm"><label class="lb">対応者</label>
+          <select id="pd-handler"><option>橋野 浩一</option><option>川﨑 慧</option><option>浦塚 弘樹</option><option>坂本 憲司</option><option>又吉 俊</option><option>千代島 奨磨</option></select>
+        </div>
+        <div class="fm"><label class="lb">ステータス</label>
+          <select id="pd-status"><option>非対応</option><option>1stコンタクト</option><option>面談済み</option><option>対応中</option><option>検討中</option><option>契約</option><option>除外</option><option>CLOSE</option></select>
+        </div>
+        <div class="fm full"><label class="lb">初回メモ</label><textarea id="pd-memo" placeholder="資料請求内容、初回接触の状況など" style="min-height:56px;"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" id="pd-btn" onclick="submitPartnerDev()">登録</button><button class="btn btn-g btn-sm" onclick="toggleAddPartnerDev()">キャンセル</button></div>
+    </div>
+    <div class="cd" style="padding:0;" id="pd-list"><div class="ld" style="padding:16px;"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+  </div>
+</div>
+
+<!-- ★販売店開拓カルテ -->
+<div class="page" id="page-pd-detail">
+  <div class="hd">
+    <div class="hd-t">🤝 代理店カルテ</div>
+    <div class="hd-r"><button class="btn btn-g btn-sm" onclick="go('partner-dev',null,'m3');setDealsSubActive('partner')">← 一覧に戻る</button></div>
+  </div>
+  <div class="ct">
+    <div class="deal-header" id="pd-detail-header"></div>
+    <div class="sec">対応履歴を追加</div>
+    <div class="add-hist-form">
+      <div class="fg" style="margin-bottom:10px;">
+        <div class="fm"><label class="lb">対応日</label><input type="date" id="pd-hist-date"></div>
+        <div class="fm"><label class="lb">対応種別</label>
+          <select id="pd-hist-type"><option>電話（架電）</option><option>電話（受電）</option><option>メール送信</option><option>初回面談</option><option>再面談</option><option>資料送付</option><option>契約手続き</option><option>その他</option></select>
+        </div>
+        <div class="fm full"><label class="lb">対応内容</label><textarea id="pd-hist-content" placeholder="話した内容、相手の反応、状況など"></textarea></div>
+        <div class="fm full"><label class="lb">次回アクション</label><textarea id="pd-hist-next" placeholder="次回連絡日、送付する資料、確認事項など"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-p btn-sm" id="pd-hist-btn" onclick="submitPdHistory()">📝 対応記録を追加</button>
+        <span id="pd-hist-status" style="font-size:11px;color:var(--tx3);"></span>
+      </div>
+    </div>
+    <div class="sec">対応履歴タイムライン</div>
+    <div id="pd-timeline-wrap"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+  </div>
+</div>
+
+<!-- 販売店管理 -->
+<div class="page" id="page-partner">
+  <div class="hd"><div class="hd-t">🏪 完クロ案件管理</div><div class="hd-r"><span class="bx bx-b">今月集計</span></div></div>
+  <div class="ct">
+    <div class="partner-note">⚠️ このページはサポート部（完クロ案件担当）が入力・管理します。</div>
+    <div class="sec">担当販売店 実績（日報集計）</div>
+    <div class="cd" id="partner-list"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+    <div class="cd" style="margin-top:14px;"><div class="cd-t">販売店別 TU受領 vs 内示（今月）</div><div style="height:160px;"><canvas id="pt-chart"></canvas></div></div>
+  </div>
+</div>
+
+<!-- 週次レポート -->
+<div class="page" id="page-weekly">
+  <div class="hd"><div class="hd-t">📋 週次レポート</div><div class="hd-r"><span class="bx bx-b" id="weekly-lbl"></span><button class="btn btn-g btn-sm" onclick="loadWeekly()">↻ 更新</button></div></div>
+  <div class="ct">
+    <div class="week-tabs" id="week-tabs"></div>
+    <!-- KPIカード -->
+    <div class="kg" id="weekly-kpi"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>集計中...</span></div></div>
+    <!-- 転換率セクション -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="cd"><div class="cd-t">📊 フェーズ転換率</div><div id="weekly-rates"></div></div>
+      <div class="cd"><div class="cd-t">📦 案件ステータス分布（全体）</div><div id="weekly-status-dist"></div></div>
+    </div>
+    <!-- 担当者別実績テーブル -->
+    <div class="cd"><div class="cd-t">担当者別 週間実績</div><div class="tw" id="weekly-table"></div></div>
+    <!-- トピック -->
+    <div class="cd">
+      <div class="cd-t">💬 今週のトピック（担当者別）</div>
+      <div id="weekly-topics"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 月次レポート -->
+<div class="page" id="page-monthly">
+  <div class="hd"><div class="hd-t">📅 月次レポート</div><div class="hd-r"><span class="bx bx-b" id="monthly-lbl"></span><button class="btn btn-gr btn-sm">📥 出力</button></div></div>
+  <div class="ct">
+    <!-- KPIカード -->
+    <div class="kg" id="monthly-kpi"><div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div></div>
+    <!-- 転換率＋ステータス分布 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="cd"><div class="cd-t">📊 フェーズ転換率</div><div id="monthly-rates"></div></div>
+      <div class="cd"><div class="cd-t">📦 案件ステータス分布</div><div id="monthly-status-dist"></div></div>
+    </div>
+    <!-- 予算進捗 -->
+    <div class="cd" style="border-color:rgba(79,125,247,.3);">
+      <div class="cd-t" style="color:var(--ac);">🎯 担当者別 予算進捗</div>
+      <div id="monthly-budget-progress"></div>
+    </div>
+    <!-- 粗利 -->
+    <div class="cd" style="border-color:rgba(167,139,250,.3);">
+      <div class="cd-t" style="color:var(--pu);">💰 粗利集計（受注・申請中・採択案件）</div>
+      <div id="monthly-gp"></div>
+    </div>
+    <!-- 担当者別実績 -->
+    <div class="cd"><div class="cd-t">担当者別 月間実績</div><div class="tw" id="monthly-table"></div></div>
+    <!-- 担当者別トピック -->
+    <div class="cd">
+      <div class="cd-t">💬 今月のトピック（担当者別）</div>
+      <div id="monthly-topics"></div>
+    </div>
+    <!-- 社長サマリ -->
+    <div class="cd" style="border-color:rgba(79,125,247,.3);"><div class="cd-t" style="color:var(--ac);">📌 社長向けサマリ</div><div id="monthly-summary" style="font-size:12px;line-height:1.9;color:var(--tx2);">集計後に自動生成されます</div></div>
+  </div>
+</div>
+
+<!-- 販売店マスタ -->
+<div class="page" id="page-dealer">
+  <div class="hd">
+    <div class="hd-t">🏢 販売店マスタ</div>
+    <div class="hd-r"><button class="btn btn-p btn-sm" onclick="toggleAddDealer()">＋ 新規登録</button></div>
+  </div>
+  <!-- 検索バー -->
+  <div class="deal-search">
+    <div class="search-row">
+      <input class="search-input" id="dealer-search" type="text" placeholder="🔍  販売店名・担当者・エリアで検索..." oninput="applyDealerFilter()">
+    </div>
+    <div class="filter-row">
+      <span style="font-size:10px;color:var(--tx3);align-self:center;">種別：</span>
+      <div class="filter-chip on" id="dt-all" onclick="setDealerTypeFilter('all')">すべて</div>
+      <div class="filter-chip grn" id="dt-tu" onclick="setDealerTypeFilter('TU')">TU</div>
+      <div class="filter-chip amb" id="dt-kanku" onclick="setDealerTypeFilter('完クロ')">完クロ</div>
+      <div class="filter-chip" id="dt-both" onclick="setDealerTypeFilter('両方')">両方</div>
+    </div>
+  </div>
+  <div class="deal-count" id="dealer-count"></div>
+  <div class="ct" style="padding-top:8px;">
+    <!-- 新規登録フォーム -->
+    <div class="cd" id="add-dealer-cd" style="display:none;">
+      <div class="cd-t">販売店を登録</div>
+      <div class="fg" style="margin-bottom:10px;">
+        <div class="fm"><label class="lb">販売店名</label><input type="text" id="dl-nm" placeholder="〇〇株式会社"></div>
+        <div class="fm"><label class="lb">担当者名</label><input type="text" id="dl-person" placeholder="山田 太郎"></div>
+        <div class="fm"><label class="lb">電話番号</label><input type="text" id="dl-tel" placeholder="03-0000-0000"></div>
+        <div class="fm"><label class="lb">メールアドレス</label><input type="text" id="dl-email" placeholder="example@email.com"></div>
+        <div class="fm"><label class="lb">担当営業（ALL側）</label>
+          <select id="dl-sales"><option value="">未設定</option><option>橋野 浩一</option><option>川﨑 慧</option><option>浦塚 弘樹</option><option>坂本 憲司</option><option>又吉 俊</option><option>千代島 奨磨</option></select>
+        </div>
+        <div class="fm"><label class="lb">販売店種別</label>
+          <select id="dl-type"><option>TU</option><option>完クロ</option><option>両方</option></select>
+        </div>
+        <div class="fm"><label class="lb">得意業種</label><input type="text" id="dl-industry" placeholder="飲食・小売・美容など"></div>
+        <div class="fm"><label class="lb">エリア</label><input type="text" id="dl-area" placeholder="大阪・関西など"></div>
+        <div class="fm full"><label class="lb">メモ</label><textarea id="dl-memo" placeholder="特記事項など" style="min-height:56px;"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" id="dealer-btn" onclick="submitDealer()">登録</button><button class="btn btn-g btn-sm" onclick="toggleAddDealer()">キャンセル</button></div>
+    </div>
+    <!-- 一覧テーブル -->
+    <div style="overflow-x:auto;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);" id="dealer-list">
+      <div class="ld" style="padding:16px;"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- メンバー管理 -->
+<div class="page" id="page-members">
+  <div class="hd">
+    <div class="hd-t">👥 メンバー管理</div>
+    <div class="hd-r"><span class="bx bx-b">予算・担当販売店設定</span></div>
+  </div>
+  <div class="ct">
+    <div class="cd" style="border-color:rgba(79,125,247,.3);">
+      <div class="cd-t" style="color:var(--ac);">📋 使い方</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.8;">
+        各メンバーの年間粗利予算を設定すると、月次レポートで進捗率が自動表示されます。<br>
+        担当販売店を登録すると、各メンバーの販売店一覧が管理できます。
+      </div>
+    </div>
+    <div id="member-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CSVインポート -->
+<div class="page" id="page-import">
+  <div class="hd">
+    <div class="hd-t">📥 CSVインポート</div>
+    <div class="hd-r"><span class="bx bx-b">既存データ一括登録</span></div>
+  </div>
+  <div class="ct">
+    <div class="cd" style="border-color:rgba(79,125,247,.3);">
+      <div class="cd-t" style="color:var(--ac);">📋 インポートの使い方</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.9;">
+        1. 下のボタンから対象のCSVテンプレートをダウンロード<br>
+        2. テンプレートにデータを入力して保存（文字コード：UTF-8）<br>
+        3. 「ファイルを選択」でCSVを選び「インポート実行」をクリック<br>
+        4. スプレッドシートに自動で追加されます
+      </div>
+    </div>
+
+    <!-- 案件インポート -->
+    <div class="cd">
+      <div class="cd-t">💼 エンド商談データ（案件）</div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">
+        列：案件名, チャネル(end/tossup), 申請補助金, 申請枠, 販売店, 担当者, 金額, ステータス(prospect/negotiating/indicated/won/lost), 見込ランク(A/B/C), 入金予定月(YYYY-MM), メモ, 登録日(YYYY-MM-DD)
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-g btn-sm" onclick="downloadTemplate('deal')">📄 テンプレートDL</button>
+        <input type="file" id="import-deal-file" accept=".csv" style="font-size:11px;color:var(--tx2);">
+        <button class="btn btn-p btn-sm" onclick="runImport('deal')">▶ インポート実行</button>
+        <span id="import-deal-status" style="font-size:11px;color:var(--tx3);"></span>
+      </div>
+    </div>
+
+    <!-- 販売店開拓インポート -->
+    <div class="cd">
+      <div class="cd-t">🤝 販売店開拓データ</div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">
+        列：代理店名, 担当者, リード元, 電話番号, メール, 都道府県, 対応者, ステータス(非対応/1stコンタクト/面談済み/対応中/検討中/契約/除外/CLOSE), メモ, 登録日(YYYY-MM-DD)
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-g btn-sm" onclick="downloadTemplate('partnerdev')">📄 テンプレートDL</button>
+        <input type="file" id="import-pd-file" accept=".csv" style="font-size:11px;color:var(--tx2);">
+        <button class="btn btn-p btn-sm" onclick="runImport('partnerdev')">▶ インポート実行</button>
+        <span id="import-pd-status" style="font-size:11px;color:var(--tx3);"></span>
+      </div>
+    </div>
+
+    <!-- 日報インポート -->
+    <div class="cd">
+      <div class="cd-t">📝 日報データ</div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">
+        列：日付(YYYY-MM-DD), 担当者, 直販訪問, 直販新規見込, 直販内示, 直販受注, TU受領, TU商談, TU内示, TU受注, 販売店新規, 販売店既存, 目標1, 目標2, 目標3, トピック
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-g btn-sm" onclick="downloadTemplate('report')">📄 テンプレートDL</button>
+        <input type="file" id="import-report-file" accept=".csv" style="font-size:11px;color:var(--tx2);">
+        <button class="btn btn-p btn-sm" onclick="runImport('report')">▶ インポート実行</button>
+        <span id="import-report-status" style="font-size:11px;color:var(--tx3);"></span>
+      </div>
+    </div>
+
+    <div id="import-log" style="display:none;">
+      <div class="cd-t">インポート結果</div>
+      <div id="import-log-body" style="font-size:12px;line-height:1.8;color:var(--tx2);"></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="mob-nav">
+  <div class="mob-nav-i">
+    <div class="mn on" id="m0" onclick="go('exec',null,'m0')"><span class="mn-ic">👁️</span><span class="mn-lb">経営</span></div>
+    <div class="mn" id="m1" onclick="go('cashflow',null,'m1')"><span class="mn-ic">💴</span><span class="mn-lb">入金</span></div>
+    <div class="mn" id="m2" onclick="go('report',null,'m2')"><span class="mn-ic">📝</span><span class="mn-lb">日報</span></div>
+    <div class="mn" id="m3" onclick="go('deals',null,'m3')"><span class="mn-ic">💼</span><span class="mn-lb">案件</span></div>
+    <div class="mn" id="m4" onclick="go('weekly',null,'m4')"><span class="mn-ic">📋</span><span class="mn-lb">週次</span></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxLJyUB2jhPs-wALHFnK5CZkQUbwxvocSMwh7S3dF5ddQoBw2ll0ibC12GdWABx0W31MQ/exec";
+let DEMO_MODE = GAS_URL.includes("YOUR_DEPLOYMENT_ID");
+let currentDealId = null;
+let allDeals = [];
+const MEMBERS = ["橋野 浩一","川﨑 慧","浦塚 弘樹","坂本 憲司","又吉 俊","千代島 奨磨"];
+const MEMBER_COLORS = ["#4f7df7","#34d399","#f59e0b","#a78bfa","#f87171","#38bdf8"];
+let memberData = {};
+let dealerList = []; // 販売店マスタ
+
+// API
+async function apiGet(params){
+  if(DEMO_MODE) return [];
+  const url=GAS_URL+"?"+Object.entries(params).map(([k,v])=>k+"="+encodeURIComponent(v)).join("&");
+  try{ const r=await fetch(url); return (await r.json()).data||[]; }catch(e){ return []; }
+}
+async function apiPost(body){
+  if(DEMO_MODE) return {ok:true,id:"demo-"+Date.now()};
+  try{ const r=await fetch(GAS_URL,{method:"POST",body:JSON.stringify(body)}); return r.json(); }catch(e){ return {ok:false}; }
+}
+async function checkConn(){
+  const dot=document.getElementById("cdot"),txt=document.getElementById("ctxt");
+  if(DEMO_MODE){ dot.className="conn-dot am"; txt.textContent="デモモード"; return; }
+  try{ await fetch(GAS_URL+"?type=report"); dot.className="conn-dot ok"; txt.textContent="スプレッドシート接続済"; }
+  catch(e){ dot.className="conn-dot err"; txt.textContent="接続エラー"; }
+}
+
+// NAV
+function go(page,sideEl,mnId){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".ni").forEach(n=>n.classList.remove("on"));
+  document.querySelectorAll(".mn").forEach(n=>n.classList.remove("on"));
+  document.getElementById("page-"+page).classList.add("on");
+  if(sideEl) sideEl.classList.add("on");
+  if(mnId){const mnEl=document.getElementById(mnId);if(mnEl)mnEl.classList.add("on");}
+  document.getElementById("mainScroll").scrollTop=0;
+  ({exec:loadExec,cashflow:loadPayments,deals:loadDeals,'partner-dev':loadPartnerDev,partner:loadPartners,weekly:loadWeekly,monthly:loadMonthly,members:loadMembers,dealer:loadDealer,import:()=>{}}[page]||(() => {}))();
+}
+
+// 日報タブ（不要になったが残存コードを無害化）
+function switchRepTab(){}
+
+const NV={d_visit:0,d_prospect:0,d_ind:0,d_won:0,t_recv:0,t_nego:0,t_ind:0,t_won:0,p_new:0,p_exist:0,c_doc:0,c_claim:0,c_deliver:0,c_mtg:0};
+function cn(k,d){NV[k]=Math.max(0,NV[k]+d);document.getElementById(k).textContent=NV[k];}
+
+// EXEC
+async function loadExec(){
+  const today=new Date().toISOString().split("T")[0],month=today.slice(0,7);
+  const [reports,payments]=await Promise.all([apiGet({type:"report"}),apiGet({type:"payment"})]);
+  const todayR=reports.filter(r=>r["日付"]===today),monthR=reports.filter(r=>String(r["日付"]).startsWith(month));
+
+  // 新フィールド名で集計
+  const tuRecv=monthR.reduce((s,r)=>s+num(r,"TU受領"),0);
+  const tuInd =monthR.reduce((s,r)=>s+num(r,"TU内示"),0);
+  const tuWon =monthR.reduce((s,r)=>s+num(r,"TU受注"),0);
+  const tuRate=tuRecv>0?Math.round((tuInd+tuWon)/tuRecv*100):0;
+  const cancel=monthR.reduce((s,r)=>s+num(r,"直販内示"),0); // キャンセル項目なくなったので内示で代替表示
+  // 受注案件（入金見込）・採択案件（入金予定）を案件データから集計
+  const deals_exec=await apiGet({type:"deal"});
+  const orderedAmt=deals_exec.filter(d=>d["ステータス"]==="ordered").reduce((s,d)=>s+num(d,"金額"),0);
+  const adoptedAmt=deals_exec.filter(d=>d["ステータス"]==="adopted").reduce((s,d)=>s+num(d,"金額"),0);
+
+  document.getElementById("kpi-pay").textContent="¥"+orderedAmt+"万";
+  const adoptedEl=document.getElementById("kpi-adopted");
+  if(adoptedEl) adoptedEl.textContent="¥"+adoptedAmt+"万";
+  document.getElementById("kpi-tu").textContent=tuRate+"%";
+  // 今日の全商談件数：直販訪問 + TU受領 + 販売店商談（新規+既存）
+  const todayContact=todayR.reduce((s,r)=>s+num(r,"直販訪問")+num(r,"TU受領")+num(r,"エンド書類回収")+num(r,"エンドクレーム")+num(r,"エンド納品")+num(r,"エンド打合せ")+num(r,"販売店新規")+num(r,"販売店既存"),0);
+  const todayNego=todayR.reduce((s,r)=>s+num(r,"直販訪問")+num(r,"TU受領"),0);
+  const todayRate=todayContact>0?Math.round(todayNego/todayContact*100):0;
+  document.getElementById("kpi-acts").textContent=todayContact+"件";
+  document.querySelector("#kpi-acts").closest(".kpi").querySelector(".kpi-s").textContent="商談率 "+todayRate+"% (商談"+todayNego+"件)";
+  document.getElementById("kpi-cancel").textContent=monthR.reduce((s,r)=>s+num(r,"直販内示")+num(r,"TU内示"),0)+"件";
+
+  // KPIラベルを実態に合わせて更新
+  document.querySelector("#kpi-tu").closest(".kpi").querySelector(".kpi-l").textContent="TU決定率（今月）";
+  document.querySelector("#kpi-cancel").closest(".kpi").querySelector(".kpi-l").textContent="今月 内示合計";
+  document.querySelector("#kpi-cancel").closest(".kpi").querySelector(".kpi-s").textContent="直販+TU";
+
+  const persons=["橋野 浩一","川﨑 慧","浦塚 弘樹","坂本 憲司","又吉 俊","千代島 奨磨"];
+  const avColors=["#4f7df7","#34d399","#f59e0b","#a78bfa","#f87171","#38bdf8"];
+  document.getElementById("exec-pg").innerHTML=persons.map((nm,i)=>{
+    const pr=todayR.filter(r=>r["担当者"]===nm);
+    const direct=pr.reduce((s,r)=>s+num(r,"直販訪問"),0);
+    const tu    =pr.reduce((s,r)=>s+num(r,"TU受領"),0);
+    const prt   =pr.reduce((s,r)=>s+num(r,"販売店新規")+num(r,"販売店既存"),0);
+    const endCont=pr.reduce((s,r)=>s+num(r,"エンド書類回収")+num(r,"エンドクレーム")+num(r,"エンド納品")+num(r,"エンド打合せ"),0);
+    const nego=direct+tu;
+    const total=nego+prt+endCont;
+    const rate=total>0?Math.round(nego/total*100):0;
+    return `<div class="pc"><div class="pc-h"><div class="av" style="background:${avColors[i]}">${nm[0]}</div><div><div class="pc-n">${nm}</div><div style="font-size:10px;color:var(--tx3);">接触 ${total}件 商談率${rate}%</div></div><div style="margin-left:auto;font-size:22px;font-family:var(--mo);font-weight:700;">${total}</div></div>
+    <div class="pc-s" style="grid-template-columns:1fr 1fr 1fr 1fr;"><div class="ps-b"><div class="ps-n" style="color:var(--ac)">${direct}</div><div class="ps-t">直販</div></div><div class="ps-b"><div class="ps-n" style="color:var(--g)">${tu}</div><div class="ps-t">TU</div></div><div class="ps-b"><div class="ps-n" style="color:var(--pu)">${prt}</div><div class="ps-t">販売店</div></div><div class="ps-b"><div class="ps-n" style="color:#38bdf8">${endCont}</div><div class="ps-t">対応</div></div></div>
+    <div class="ch-pills">${nego>0?`<span class="pill pe">商談 ${nego}件</span>`:""}${endCont>0?`<span class="pill" style="background:rgba(56,189,248,.15);color:#38bdf8;">対応 ${endCont}件</span>`:""}${total===0?`<span style="font-size:10px;color:var(--tx3);">本日未入力</span>`:""}</div></div>`;
+  }).join("");
+
+  // ファネル：直販の流れ（訪問→見込→内示→受注）
+  const funnelData=[
+    {l:"直販訪問",v:monthR.reduce((s,r)=>s+num(r,"直販訪問"),0),c:"rgba(79,125,247,.3)",tc:"var(--ac)"},
+    {l:"直販見込",v:monthR.reduce((s,r)=>s+num(r,"直販新規見込"),0),c:"rgba(167,139,250,.3)",tc:"var(--pu)"},
+    {l:"TU受領",v:tuRecv,c:"rgba(52,211,153,.25)",tc:"var(--g)"},
+    {l:"内示合計",v:tuInd+monthR.reduce((s,r)=>s+num(r,"直販内示"),0),c:"rgba(245,158,11,.3)",tc:"var(--am)"},
+  ];
+  const maxFV=Math.max(...funnelData.map(f=>f.v),1);
+  document.getElementById("exec-funnel").innerHTML=funnelData.map(f=>`<div class="fn-row"><span class="fn-l">${f.l}</span><div class="fn-b"><div class="fn-f" style="width:${Math.round(f.v/maxFV*100)}%;background:${f.c};color:${f.tc};">${f.v>0?f.v+"件":""}</div></div><span class="fn-c" style="color:${f.tc};">${f.v}</span></div>`).join("");
+
+  // 販売店別TU受領
+  const ptMap={};
+  monthR.filter(r=>num(r,"TU受領")>0).forEach(r=>{const nm=r["販売店名"]||"不明";ptMap[nm]=(ptMap[nm]||0)+num(r,"TU受領");});
+  const ptArr=Object.entries(ptMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxPV=Math.max(...ptArr.map(p=>p[1]),1);
+  document.getElementById("exec-partner-rank").innerHTML=ptArr.length===0?`<div style="font-size:11px;color:var(--tx3);padding:8px 0;">今月のデータなし</div>`:ptArr.map(([nm,v])=>`<div class="fn-row"><span class="fn-l" style="width:100px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nm}</span><div class="fn-b"><div class="fn-f" style="width:${Math.round(v/maxPV*100)}%;background:rgba(52,211,153,.3);color:var(--g);">${v}件</div></div><span class="fn-c" style="color:var(--g);">${v}</span></div>`).join("");
+  renderCfBars("exec-cfbar",payments);
+}
+
+// CASHFLOW
+function renderCfBars(elId,payments){
+  const today=new Date();
+  const months=Array.from({length:4},(_,i)=>{const d=new Date(today.getFullYear(),today.getMonth()+i,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");});
+  const maxV=Math.max(...months.map(m=>payments.filter(p=>p["入金予定日"]?.startsWith(m)).reduce((s,p)=>s+num(p,"金額"),0)),1);
+  document.getElementById(elId).innerHTML=months.map(m=>{
+    const c=payments.filter(p=>p["入金予定日"]?.startsWith(m)&&p["ステータス"]==="confirmed").reduce((s,p)=>s+num(p,"金額"),0);
+    const pe=payments.filter(p=>p["入金予定日"]?.startsWith(m)&&p["ステータス"]==="pending").reduce((s,p)=>s+num(p,"金額"),0);
+    const tot=c+pe;const wc=Math.round(c/maxV*100);const wp=Math.round(pe/maxV*100);
+    return `<div class="cf-row"><span class="cf-ml">${m.split("-")[1]}月</span><div class="cf-bo"><div class="cf-bars"><div class="cf-seg-c" style="width:${wc}%;${wc===0?"display:none":""}"></div><div class="cf-seg-p" style="width:${wp}%;${wp===0?"display:none":""}"></div></div></div><span class="cf-tot" style="color:${tot>0?"var(--g)":"var(--tx3)"};">¥${tot}万</span></div>`;
+  }).join("")+`<div style="display:flex;gap:16px;margin-top:6px;font-size:10px;color:var(--tx3);"><span><span style="display:inline-block;width:10px;height:10px;background:rgba(52,211,153,.5);border-radius:2px;margin-right:4px;"></span>確定</span><span><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,.35);border-radius:2px;margin-right:4px;"></span>見込</span></div>`;
+}
+async function loadPayments(){
+  const pays=await apiGet({type:"payment"});
+  renderCfBars("cf-bar-cd",pays);
+  const sorted=[...pays].sort((a,b)=>a["入金予定日"]>b["入金予定日"]?1:-1);
+  const stCls={pending:"pst-p",confirmed:"pst-c",received:"pst-r"};
+  const stLb={pending:"見込",confirmed:"確定",received:"入金済"};
+  document.getElementById("pay-list").innerHTML=sorted.length===0?`<div style="padding:16px;font-size:11px;color:var(--tx3);">データなし</div>`:sorted.map(p=>`<div class="py-row"><div class="py-dot" style="background:${p["ステータス"]==="confirmed"?"var(--g)":p["ステータス"]==="received"?"var(--ac)":"var(--am)"}"></div><div class="py-info"><div class="py-nm">${p["案件名"]}</div><div class="py-mt">${p["入金種別"]}</div></div><div style="text-align:right;"><div class="py-amt">¥${p["金額"]}万</div><div class="py-dt">${p["入金予定日"]}</div><span class="pst ${stCls[p["ステータス"]]||"pst-p"}">${stLb[p["ステータス"]]||"見込"}</span></div></div>`).join("");
+}
+function toggleAddPay(){const c=document.getElementById("add-pay-cd");c.style.display=c.style.display==="none"?"block":"none";}
+async function submitPayment(){
+  const btn=document.querySelector("#add-pay-cd .btn-p");btn.textContent="送信中...";btn.disabled=true;
+  await apiPost({type:"payment",action:"create",payload:{案件名:document.getElementById("py-deal").value,入金種別:document.getElementById("py-type").value,入金予定日:document.getElementById("py-date").value,金額:parseInt(document.getElementById("py-amt").value)||0,ステータス:document.getElementById("py-st").value}});
+  btn.textContent="追加";btn.disabled=false;document.getElementById("add-pay-cd").style.display="none";
+  toast("入金予定を追加しました");loadPayments();
+}
+
+// REPORT
+async function submitReport(){
+  const btn=document.getElementById("rep-btn"),st=document.getElementById("rep-status");
+  btn.textContent="送信中...";btn.disabled=true;st.textContent="";
+  const payload={
+    日付:document.getElementById("r-date").value,
+    担当者:document.getElementById("r-person").value,
+    直販訪問:NV.d_visit, 直販新規見込:NV.d_prospect, 直販内示:NV.d_ind, 直販受注:NV.d_won,
+    TU受領:NV.t_recv, TU商談:NV.t_nego, TU内示:NV.t_ind, TU受注:NV.t_won,
+    販売店新規:NV.p_new, 販売店既存:NV.p_exist,
+    目標1:document.getElementById("g1").value,
+    目標2:document.getElementById("g2").value,
+    目標3:document.getElementById("g3").value,
+    トピック:document.getElementById("r-topic").value,
+    エンド書類回収:NV.c_doc, エンドクレーム:NV.c_claim, エンド納品:NV.c_deliver, エンド打合せ:NV.c_mtg,
+  };
+  const res=await apiPost({type:"report",action:"create",payload});
+  btn.textContent="📨 日報を送信";btn.disabled=false;
+  if(res.ok){
+    const tuRate=NV.t_recv>0?Math.round((NV.t_ind+NV.t_won)/NV.t_recv*100):0;
+    document.getElementById("rep-preview-body").innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px;">
+        <div style="padding:8px;background:rgba(79,125,247,.08);border-radius:6px;border:1px solid rgba(79,125,247,.2);">
+          <div style="color:var(--ac);font-weight:700;margin-bottom:4px;">🏢 直販</div>
+          訪問 <b>${NV.d_visit}</b>件 / 新規見込 <b>${NV.d_prospect}</b>件<br>内示 <b>${NV.d_ind}</b>件 / 受注 <b>${NV.d_won}</b>件
+        </div>
+        <div style="padding:8px;background:rgba(52,211,153,.08);border-radius:6px;border:1px solid rgba(52,211,153,.2);">
+          <div style="color:var(--g);font-weight:700;margin-bottom:4px;">🔄 トスアップ　決定率 ${tuRate}%</div>
+          受領 <b>${NV.t_recv}</b>件 / 商談 <b>${NV.t_nego}</b>件<br>内示 <b>${NV.t_ind}</b>件 / 受注 <b>${NV.t_won}</b>件
+        </div>
+        <div style="padding:8px;background:rgba(167,139,250,.08);border-radius:6px;border:1px solid rgba(167,139,250,.2);">
+          <div style="color:var(--pu);font-weight:700;margin-bottom:4px;">🤝 販売店商談</div>
+          新規 <b>${NV.p_new}</b>件 / 既存 <b>${NV.p_exist}</b>件
+        </div>
+      </div>
+      ${payload.トピック?`<div style="margin-top:8px;font-size:11px;color:var(--tx2);padding:8px;background:var(--sf2);border-radius:5px;">${payload.トピック}</div>`:""}
+      <div style="margin-top:8px;padding:8px;background:rgba(56,189,248,.08);border-radius:6px;border:1px solid rgba(56,189,248,.2);font-size:11px;">
+        <div style="color:#38bdf8;font-weight:700;margin-bottom:4px;">📋 エンド対応　接触数 ${NV.d_visit+NV.t_recv+NV.c_doc+NV.c_claim+NV.c_deliver+NV.c_mtg}件　商談率 ${(NV.d_visit+NV.t_recv+NV.c_doc+NV.c_claim+NV.c_deliver+NV.c_mtg)>0?Math.round((NV.d_visit+NV.t_recv)/(NV.d_visit+NV.t_recv+NV.c_doc+NV.c_claim+NV.c_deliver+NV.c_mtg)*100):0}%</div>
+        書類回収 <b>${NV.c_doc}</b>件 / クレーム <b>${NV.c_claim}</b>件 / 納品 <b>${NV.c_deliver}</b>件 / 打合せ <b>${NV.c_mtg}</b>件
+      </div>`;
+    document.getElementById("rep-preview").style.display="block";
+    toast("日報を送信しました");
+  } else { st.textContent="送信エラー。再試行してください"; }
+}
+function clearRep(){
+  Object.keys(NV).forEach(k=>{NV[k]=0;const el=document.getElementById(k);if(el)el.textContent="0";});
+  ["g1","g2","g3","r-topic"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("rep-preview").style.display="none";
+}
+function updateSbUser(){const nm=document.getElementById("r-person").value;document.getElementById("sb-nm").textContent=nm;document.getElementById("sb-av").textContent=nm[0];}
+
+// DEALS
+// ---- フィルター状態 ----
+let dealStatusFilter="all";
+let dealRankFilter="";
+let dealSubFilter="";
+
+async function loadDeals(){
+  // 販売店マスタが未取得なら取得
+  if(dealerList.length===0){
+    dealerList=await apiGet({type:"dealer"});
+    updateDealerDropdown();
+  }
+  allDeals=await apiGet({type:"deal"});
+  applyDealFilter();
+}
+// allDealsを最新に保つためのヘルパー
+async function refreshDeals(){
+  allDeals=await apiGet({type:"deal"});
+  return allDeals;
+}
+function toggleAddDeal(){const c=document.getElementById("add-deal-cd");c.style.display=c.style.display==="none"?"block":"none";updateSubFrame();}
+function updateSubFrame(){
+  const sub=document.getElementById("nd-sub").value;
+  const frame=document.getElementById("nd-frame");
+  const opts={"デジタル・AI導入補助金":["通常枠","インボイス枠","インボイス対応類型","電子取引類型","複数社連携枠","セキュリティ対策枠"],"小規模事業者持続化補助金":["一般型","賃金引き上げ枠","卒業枠","後継者支援枠","創業型"],"ものづくり補助金":["通常枠","回復型賃上げ枠","デジタル枠","グリーン枠","グローバル枠"],"省力化投資補助金":["省力化（カタログ）","省力化（一般）"]};
+  frame.innerHTML=["—",...(opts[sub]||[])].map(o=>`<option>${o}</option>`).join("");
+}
+
+function setStatusFilter(v){
+  dealStatusFilter=v;
+  // チップのon切り替え
+  ["all","prospect","negotiating","indicated","ordered","applying","adopted","lost","rejected"].forEach(s=>{
+    const el=document.getElementById("fc-"+s);
+    if(el) el.classList.toggle("on", s===v);
+  });
+  applyDealFilter();
+}
+function setRankFilter(v){
+  dealRankFilter=(dealRankFilter===v)?"":v; // 同じを押したらリセット
+  ["A","B","C"].forEach(r=>{
+    const el=document.getElementById("fr-"+r);
+    if(el) el.classList.toggle("on", r===dealRankFilter);
+  });
+  applyDealFilter();
+}
+function setSubFilter(v){
+  const keyMap={"デジタル・AI導入補助金":"IT","小規模事業者持続化補助金":"jizoku","ものづくり補助金":"mono","ストック商材":"stock"};
+  dealSubFilter=(dealSubFilter===v)?"":v;
+  Object.entries(keyMap).forEach(([sub,key])=>{
+    const el=document.getElementById("fs-"+key);
+    if(el) el.classList.toggle("on", sub===dealSubFilter);
+  });
+  applyDealFilter();
+}
+
+function applyDealFilter(){
+  const q=(document.getElementById("dl-search")?.value||"").trim().toLowerCase();
+  let list=allDeals;
+  // テキスト検索（案件名・担当者・販売店）
+  if(q) list=list.filter(d=>{
+    const nm=(d["案件名"]||"").toLowerCase();
+    const ps=(d["担当者"]||"").toLowerCase();
+    const pt=(d["販売店"]||"").toLowerCase();
+    return nm.includes(q)||ps.includes(q)||pt.includes(q);
+  });
+  // ステータス
+  if(dealStatusFilter!=="all") list=list.filter(d=>d["ステータス"]===dealStatusFilter);
+  // ランク
+  if(dealRankFilter) list=list.filter(d=>d["見込ランク"]===dealRankFilter);
+  // 補助金
+  if(dealSubFilter) list=list.filter(d=>d["申請補助金"]===dealSubFilter);
+  renderDeals(list);
+}
+
+async function submitDeal(){
+  const btn=document.getElementById("deal-btn");btn.textContent="登録中...";btn.disabled=true;
+  const today=new Date().toISOString().split("T")[0];
+  const memoVal=document.getElementById("nd-memo").value;
+  const payload={案件名:document.getElementById("nd-nm").value,チャネル:document.getElementById("nd-ch").value,申請補助金:document.getElementById("nd-sub").value,申請枠:document.getElementById("nd-frame").value,販売店:document.getElementById("nd-pt").value||"—",担当者:document.getElementById("nd-ps").value,金額:parseInt(document.getElementById("nd-am").value)||0,粗利:parseInt(document.getElementById("nd-gp").value)||0,ステータス:document.getElementById("nd-st").value,見込ランク:document.getElementById("nd-rank").value,入金予定月:document.getElementById("nd-pm").value,申請回:document.getElementById("nd-round").value,申請業者:document.getElementById("nd-vendor").value,外注先費用:parseInt(document.getElementById("nd-outsource").value)||0,商材:document.getElementById("nd-item").value,メモ:memoVal,登録日:today};
+  const res=await apiPost({type:"deal",action:"create",payload});
+  if(res.ok&&res.id&&memoVal){
+    await apiPost({type:"history",action:"create",payload:{案件ID:res.id,案件名:payload.案件名,商談日:today,商談種別:"初回商談",商談内容:memoVal,次回アクション:""}});
+  }
+  btn.textContent="登録";btn.disabled=false;toggleAddDeal();
+  ["nd-nm","nd-pt","nd-am","nd-pm","nd-memo","nd-round","nd-vendor","nd-outsource","nd-item"].forEach(id=>document.getElementById(id).value="");
+  toast("案件を登録しました");
+  // APIから最新データを取得してallDealsを更新してからレンダリング
+  allDeals=await apiGet({type:"deal"});
+  applyDealFilter();
+}
+
+function renderDeals(list){
+  const chC={end:"#4f7df7",tossup:"#34d399"};
+  const chL={end:"エンド",tossup:"TU"};
+  const stC={prospect:"st-p",negotiating:"st-n",indicated:"st-i",ordered:"st-w",applying:"st-n",adopted:"st-w",lost:"st-l",rejected:"st-l"};
+  const stL={prospect:"見込",negotiating:"商談中",indicated:"内示",ordered:"受注",applying:"申請中",adopted:"採択",lost:"失注",rejected:"不採択"};
+  const rkC={A:"rA",B:"rB",C:"rC"};
+  const subShort={"デジタル・AI導入補助金":"デジタルAI","小規模事業者持続化補助金":"持続化","ものづくり補助金":"ものづくり","省力化投資補助金":"省力化","業務改善助成金":"業務改善","ストック商材":"ストック","その他":"その他"};
+
+  const countEl=document.getElementById("deal-count");
+  if(countEl) countEl.textContent=`${list.length}件 表示中`;
+
+  if(list.length===0){
+    document.getElementById("deal-list").innerHTML=`<div style="padding:20px;font-size:12px;color:var(--tx3);text-align:center;">条件に一致する案件がありません</div>`;
+  } else {
+    const rows=list.map(d=>{
+      const sub=d["申請補助金"]||"";
+      const frame=d["申請枠"]&&d["申請枠"]!=="—"?d["申請枠"]:"";
+      const subDisp=subShort[sub]||sub;
+      const stClass=stC[d["ステータス"]]||"";
+      const stLabel=stL[d["ステータス"]]||d["ステータス"]||"";
+      const rkClass=rkC[d["見込ランク"]]||"";
+      const chColor=chC[d["チャネル"]]||"#888";
+      return `<tr onclick="openDealDetail('${d["id"]}')" style="cursor:pointer;">
+        <td style="white-space:nowrap;font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis;">
+          <span style="display:inline-block;width:4px;height:16px;background:${chColor};border-radius:2px;margin-right:6px;vertical-align:middle;"></span>${d["案件名"]||""}
+        </td>
+        <td><span class="st ${stClass}">${stLabel}</span></td>
+        <td>${d["見込ランク"]?`<span class="rank ${rkClass}">${d["見込ランク"]}</span>`:""}</td>
+        <td style="white-space:nowrap;">${d["担当者"]||""}</td>
+        <td style="white-space:nowrap;font-size:11px;">${subDisp}${frame?" /"+frame:""}</td>
+        <td style="white-space:nowrap;font-size:11px;">${d["申請回"]||"—"}</td>
+        <td style="white-space:nowrap;font-size:11px;">${d["申請業者"]||"—"}</td>
+        <td style="white-space:nowrap;font-size:11px;">${d["商材"]||"—"}</td>
+        <td style="white-space:nowrap;font-size:11px;">${d["販売店"]&&d["販売店"]!=="—"?d["販売店"]:"—"}</td>
+        <td style="white-space:nowrap;font-family:var(--mo);color:var(--g);">¥${d["金額"]||0}万</td>
+        <td style="white-space:nowrap;font-family:var(--mo);color:var(--pu);">${d["粗利"]>0?"¥"+d["粗利"]+"万":"—"}</td>
+        <td style="white-space:nowrap;font-family:var(--mo);font-size:11px;">${d["外注先費用"]>0?"¥"+d["外注先費用"]+"万":"—"}</td>
+        <td style="white-space:nowrap;font-family:var(--mo);color:var(--am);font-size:11px;">${d["入金予定月"]||"—"}</td>
+        <td style="white-space:nowrap;font-size:11px;" id="hist-count-${d["id"]}">—</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--tx3);">${d["登録日"]||""}</td>
+      </tr>`;
+    }).join("");
+    document.getElementById("deal-list").innerHTML=`<table style="width:100%;border-collapse:collapse;min-width:1200px;">
+      <thead><tr style="position:sticky;top:0;background:var(--sf);z-index:1;">
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">案件名</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">ステータス</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">ランク</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">担当者</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">補助金/枠</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">申請回</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">申請業者</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">商材</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">販売店</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">金額</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">粗利</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">外注費</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">入金予定月</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">商談履歴</th>
+        <th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">登録日</th>
+      </tr></thead>
+      <tbody style="font-size:12px;">${rows}</tbody>
+    </table>`;
+  }
+
+  document.getElementById("nb-d").textContent=allDeals.filter(d=>["indicated","ordered","applying","adopted"].includes(d["ステータス"])).length;
+  list.forEach(d=>{ loadHistCount(d["id"]); });
+}
+
+async function loadHistCount(dealId){
+  const el=document.getElementById("hist-count-"+dealId);
+  if(!el) return;
+  const hists=await apiGet({type:"history",dealId});
+  if(el) el.textContent=hists.length>0?`商談 ${hists.length}回目まで記録あり`:"商談記録なし";
+}
+
+// ★案件詳細
+async function openDealDetail(dealId){
+  currentDealId=dealId;
+  // 常にAPIから最新を取得（新規登録直後でもデータが確実に取れる）
+  const all=await apiGet({type:"deal"});
+  allDeals=all;
+  const deal=all.find(d=>String(d["id"])===String(dealId));
+  if(!deal) return;
+
+  const chL={end:"エンド商談（直販）",tossup:"トスアップ（販売店経由）"};
+  const stC={prospect:"st-p",negotiating:"st-n",indicated:"st-i",ordered:"st-w",applying:"st-n",adopted:"st-w",lost:"st-l",rejected:"st-l"};
+  const stL={prospect:"見込",negotiating:"商談中",indicated:"内示",ordered:"受注",applying:"申請中",adopted:"採択",lost:"失注",rejected:"不採択"};
+  const rkC={A:"rA",B:"rB",C:"rC"};
+
+  // ランク：空の場合はデフォルト選択しない
+  const rank=deal["見込ランク"]||"";
+  const status=deal["ステータス"]||"prospect";
+  const sub=deal["申請補助金"]||"";
+  const frame=deal["申請枠"]||"";
+
+  // 申請枠の選択肢（補助金に合わせて生成）
+  const subOpts={"デジタル・AI導入補助金":["—","通常枠","インボイス枠","インボイス対応類型","電子取引類型","複数社連携枠","セキュリティ対策枠"],"小規模事業者持続化補助金":["—","一般型","賃金引き上げ枠","卒業枠","後継者支援枠","創業型"],"ものづくり補助金":["—","通常枠","回復型賃上げ枠","デジタル枠","グリーン枠","グローバル枠"],"省力化投資補助金":["—","省力化（カタログ）","省力化（一般）"]};
+  const frameOpts=(subOpts[sub]||["—"]).map(o=>`<option ${o===frame?"selected":""}>${o}</option>`).join("");
+
+  document.getElementById("detail-header").innerHTML=`
+    <div class="deal-header-top">
+      <div>
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">${chL[deal["チャネル"]]||deal["チャネル"]||""}</div>
+        <div class="deal-title">${deal["案件名"]||""}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-start;flex-shrink:0;">
+        ${rank?`<span class="rank ${rkC[rank]||""}" style="font-size:14px;padding:4px 10px;">${rank}</span>`:""}
+        <span class="st ${stC[status]||""}" style="font-size:12px;padding:4px 10px;">${stL[status]||status}</span>
+      </div>
+    </div>
+    <div class="deal-meta-grid">
+      <div class="deal-meta-item"><div class="deal-meta-label">申請補助金</div><div class="deal-meta-value">${sub||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">申請枠</div><div class="deal-meta-value">${frame||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">担当者</div><div class="deal-meta-value">${deal["担当者"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">販売店</div><div class="deal-meta-value">${deal["販売店"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">概算金額</div><div class="deal-meta-value" style="color:var(--g);font-family:var(--mo);font-weight:700;">¥${deal["金額"]||0}万</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">粗利</div><div class="deal-meta-value" style="color:var(--pu);font-family:var(--mo);font-weight:700;" id="detail-gp-disp">¥${deal["粗利"]||0}万</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">入金予定月</div><div class="deal-meta-value" style="color:var(--am);font-family:var(--mo);">${deal["入金予定月"]||"未設定"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">申請回</div><div class="deal-meta-value">${deal["申請回"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">申請業者</div><div class="deal-meta-value">${deal["申請業者"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">外注先費用</div><div class="deal-meta-value" style="font-family:var(--mo);">${deal["外注先費用"]>0?"¥"+deal["外注先費用"]+"万":"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">商材</div><div class="deal-meta-value">${deal["商材"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">初回登録日</div><div class="deal-meta-value">${deal["登録日"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">メモ</div><div class="deal-meta-value" style="font-size:11px;color:var(--tx2);">${deal["メモ"]||"—"}</div></div>
+    </div>
+    <div class="deal-edit-row" style="flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">ステータス：</span>
+        <select id="edit-status" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updateDealStatus('${dealId}',this.value)">
+          <option value="prospect" ${status==="prospect"?"selected":""}>見込</option>
+          <option value="negotiating" ${status==="negotiating"?"selected":""}>商談中</option>
+          <option value="indicated" ${status==="indicated"?"selected":""}>内示</option>
+          <option value="ordered" ${status==="ordered"?"selected":""}>受注</option>
+          <option value="applying" ${status==="applying"?"selected":""}>申請中</option>
+          <option value="adopted" ${status==="adopted"?"selected":""}>採択</option>
+          <option value="lost" ${status==="lost"?"selected":""}>失注</option>
+          <option value="rejected" ${status==="rejected"?"selected":""}>不採択</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">ランク：</span>
+        <select id="edit-rank" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updateDealRank('${dealId}',this.value)">
+          <option value="" ${!rank?"selected":""}>未設定</option>
+          <option value="A" ${rank==="A"?"selected":""}>A（口頭内示・ほぼ確定）</option>
+          <option value="B" ${rank==="B"?"selected":""}>B（見積提示・前向き）</option>
+          <option value="C" ${rank==="C"?"selected":""}>C（検討段階）</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">申請補助金：</span>
+        <select id="edit-sub" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updateDealSub('${dealId}')">
+          <option value="" ${!sub?"selected":""}>未設定</option>
+          <option value="デジタル・AI導入補助金" ${sub==="デジタル・AI導入補助金"?"selected":""}>デジタル・AI導入補助金</option>
+          <option value="小規模事業者持続化補助金" ${sub==="小規模事業者持続化補助金"?"selected":""}>小規模事業者持続化補助金</option>
+          <option value="ものづくり補助金" ${sub==="ものづくり補助金"?"selected":""}>ものづくり補助金</option>
+          <option value="省力化投資補助金" ${sub==="省力化投資補助金"?"selected":""}>省力化投資補助金</option>
+          <option value="業務改善助成金" ${sub==="業務改善助成金"?"selected":""}>業務改善助成金</option>
+          <option value="ストック商材" ${sub==="ストック商材"?"selected":""}>ストック商材</option>
+          <option value="その他" ${sub==="その他"?"selected":""}>その他</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">申請枠：</span>
+        <select id="edit-frame" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updateDealFrame('${dealId}')">
+          ${frameOpts}
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">入金予定月：</span>
+        <input type="month" id="edit-pm" value="${deal["入金予定月"]||""}" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updateDealPayMonth('${dealId}',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">粗利（万円）：</span>
+        <input type="number" id="edit-gp" value="${deal["粗利"]||0}" style="width:80px;font-size:12px;padding:5px 8px;" onchange="updateDealGP('${dealId}',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">申請回：</span>
+        <input type="text" id="edit-round" value="${deal["申請回"]||""}" placeholder="第1回" style="width:90px;font-size:12px;padding:5px 8px;" onchange="updateDealField('${dealId}','申請回',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">申請業者：</span>
+        <input type="text" id="edit-vendor" value="${deal["申請業者"]||""}" style="width:120px;font-size:12px;padding:5px 8px;" onchange="updateDealField('${dealId}','申請業者',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">外注先費用（万円）：</span>
+        <input type="number" id="edit-outsource" value="${deal["外注先費用"]||0}" style="width:80px;font-size:12px;padding:5px 8px;" onchange="updateDealField('${dealId}','外注先費用',parseInt(this.value)||0)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:var(--tx3);">商材：</span>
+        <input type="text" id="edit-item" value="${deal["商材"]||""}" style="width:120px;font-size:12px;padding:5px 8px;" onchange="updateDealField('${dealId}','商材',this.value)">
+      </div>
+    </div>`;
+
+  document.getElementById("hist-date").value=new Date().toISOString().split("T")[0];
+  document.getElementById("hist-content").value="";
+  document.getElementById("hist-next").value="";
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.getElementById("page-deal-detail").classList.add("on");
+  document.getElementById("mainScroll").scrollTop=0;
+  loadTimeline(dealId);
+}
+
+async function loadTimeline(dealId){
+  const el=document.getElementById("timeline-wrap");
+  el.innerHTML=`<div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div>`;
+  const hists=await apiGet({type:"history",dealId});
+  if(hists.length===0){
+    el.innerHTML=`<div style="font-size:12px;color:var(--tx3);padding:12px 0;">商談記録がありません。上のフォームから最初の記録を追加してください。</div>`;
+    return;
+  }
+  const sorted=[...hists].sort((a,b)=>a["商談日"]>b["商談日"]?1:-1);
+  el.innerHTML=`<div class="timeline">${sorted.map((h,i)=>{
+    const isFirst=i===0;
+    const isLatest=i===sorted.length-1;
+    const cls=isFirst?"first":isLatest?"latest":"";
+    return `<div class="tl-item ${cls}">
+      <div class="tl-card ${cls}">
+        <div class="tl-date">
+          <span>${h["商談日"]||""}</span>
+          <span class="tl-count">${i+1}回目 · ${h["商談種別"]||""}</span>
+          ${isLatest?`<span style="font-size:10px;background:rgba(52,211,153,.15);color:var(--g);padding:1px 6px;border-radius:4px;">最新</span>`:""}
+          ${isFirst?`<span style="font-size:10px;background:rgba(79,125,247,.15);color:var(--ac);padding:1px 6px;border-radius:4px;">初回</span>`:""}
+        </div>
+        <div class="tl-content">${(h["商談内容"]||"").replace(/\n/g,"<br>")}</div>
+        ${h["次回アクション"]?`<div class="tl-next"><div class="tl-next-label">📌 次回アクション</div><div class="tl-next-text">${h["次回アクション"].replace(/\n/g,"<br>")}</div></div>`:""}
+      </div>
+    </div>`;
+  }).join("")}</div>`;
+}
+
+async function submitHistory(){
+  const btn=document.getElementById("hist-btn"),st=document.getElementById("hist-status");
+  if(!currentDealId){ st.textContent="案件IDが見つかりません"; return; }
+  const content=document.getElementById("hist-content").value;
+  if(!content){ st.textContent="商談内容を入力してください"; return; }
+  btn.textContent="保存中...";btn.disabled=true;st.textContent="";
+  const deal=allDeals.find(d=>d["id"]===currentDealId);
+  await apiPost({type:"history",action:"create",payload:{
+    案件ID:currentDealId,
+    案件名:deal?.["案件名"]||"",
+    商談日:document.getElementById("hist-date").value,
+    商談種別:document.getElementById("hist-type").value,
+    商談内容:content,
+    次回アクション:document.getElementById("hist-next").value,
+  }});
+  btn.textContent="📝 商談記録を追加";btn.disabled=false;
+  document.getElementById("hist-content").value="";
+  document.getElementById("hist-next").value="";
+  toast("商談記録を追加しました");
+  loadTimeline(currentDealId);
+}
+
+async function updateDealStatus(dealId,status){
+  await apiPost({type:"deal",action:"update",payload:{id:dealId,ステータス:status}});
+  const d=allDeals.find(d=>d["id"]===dealId);if(d) d["ステータス"]=status;
+  toast("ステータスを更新しました");
+}
+async function updateDealRank(dealId,rank){
+  await apiPost({type:"deal",action:"updateRank",payload:{id:dealId,見込ランク:rank}});
+  const d=allDeals.find(d=>d["id"]===dealId);if(d) d["見込ランク"]=rank;
+  // ヘッダーのバッジ更新
+  const rkC={A:"rA",B:"rB",C:"rC"};
+  const badgeArea=document.querySelector(".deal-header-top div:last-child");
+  if(badgeArea){
+    const rankBadge=badgeArea.querySelector(".rank");
+    if(rank&&!rankBadge){
+      const sp=document.createElement("span");
+      sp.className=`rank ${rkC[rank]||""}`;sp.style.cssText="font-size:14px;padding:4px 10px;";sp.textContent=rank;
+      badgeArea.prepend(sp);
+    } else if(rank&&rankBadge){
+      rankBadge.className=`rank ${rkC[rank]||""}`;rankBadge.textContent=rank;
+    } else if(!rank&&rankBadge){rankBadge.remove();}
+  }
+  toast("ランクを更新しました");
+}
+async function updateDealSub(dealId){
+  const sub=document.getElementById("edit-sub").value;
+  // 申請枠の選択肢を更新
+  const subOpts={"デジタル・AI導入補助金":["—","通常枠","インボイス枠","インボイス対応類型","電子取引類型","複数社連携枠","セキュリティ対策枠"],"小規模事業者持続化補助金":["—","一般型","賃金引き上げ枠","卒業枠","後継者支援枠","創業型"],"ものづくり補助金":["—","通常枠","回復型賃上げ枠","デジタル枠","グリーン枠","グローバル枠"],"省力化投資補助金":["—","省力化（カタログ）","省力化（一般）"]};
+  const frameEl=document.getElementById("edit-frame");
+  if(frameEl) frameEl.innerHTML=(subOpts[sub]||["—"]).map(o=>`<option>${o}</option>`).join("");
+  await apiPost({type:"deal",action:"updateSub",payload:{id:dealId,申請補助金:sub,申請枠:"—"}});
+  const d=allDeals.find(d=>d["id"]===dealId);if(d){d["申請補助金"]=sub;d["申請枠"]="—";}
+  // メタグリッドの表示も更新
+  const metaItems=document.querySelectorAll(".deal-meta-item");
+  if(metaItems[0]) metaItems[0].querySelector(".deal-meta-value").textContent=sub||"—";
+  if(metaItems[1]) metaItems[1].querySelector(".deal-meta-value").textContent="—";
+  toast("申請補助金を更新しました");
+}
+async function updateDealFrame(dealId){
+  const frame=document.getElementById("edit-frame").value;
+  const sub=document.getElementById("edit-sub")?.value||allDeals.find(d=>d["id"]===dealId)?.["申請補助金"]||"";
+  await apiPost({type:"deal",action:"updateSub",payload:{id:dealId,申請補助金:sub,申請枠:frame}});
+  const d=allDeals.find(d=>d["id"]===dealId);if(d) d["申請枠"]=frame;
+  const metaItems=document.querySelectorAll(".deal-meta-item");
+  if(metaItems[1]) metaItems[1].querySelector(".deal-meta-value").textContent=frame||"—";
+  toast("申請枠を更新しました");
+}
+async function updateDealPayMonth(dealId,val){
+  const res=await apiPost({type:"deal",action:"updatePayMonth",payload:{id:dealId,入金予定月:val}});
+  if(res&&res.ok){
+    // allDealsのキャッシュを更新
+    const d=allDeals.find(d=>String(d["id"])===String(dealId));
+    if(d) d["入金予定月"]=val;
+    // 表示も即時更新
+    const metaItems=document.querySelectorAll(".deal-meta-item");
+    if(metaItems[5]) metaItems[5].querySelector(".deal-meta-value").textContent=val||"未設定";
+    // input要素の値もセット（リロード時に消えないように）
+    const pmInput=document.getElementById("edit-pm");
+    if(pmInput) pmInput.value=val||"";
+    toast("入金予定月を更新しました");
+  } else {
+    toast("更新に失敗しました。再試行してください");
+  }
+}
+
+// PARTNERS
+let ptChart=null;
+async function loadPartners(){
+  const reports=await apiGet({type:"report"});
+  const month=new Date().toISOString().slice(0,7);
+  const mr=reports.filter(r=>String(r["日付"]).startsWith(month));
+  const ptMap={};
+  mr.forEach(r=>{
+    const nm=r["販売店名"]||"不明";
+    if(!ptMap[nm]) ptMap[nm]={tu:0,pnew:0,pexist:0};
+    ptMap[nm].tu    +=num(r,"TU受領");
+    ptMap[nm].pnew  +=num(r,"販売店新規");
+    ptMap[nm].pexist+=num(r,"販売店既存");
+  });
+  const arr=Object.entries(ptMap).filter(([nm])=>nm!=="不明").sort((a,b)=>b[1].tu-a[1].tu);
+  document.getElementById("partner-list").innerHTML=arr.length===0
+    ?`<div style="font-size:11px;color:var(--tx3);padding:8px 0;">今月のデータなし</div>`
+    :arr.map(([nm,v],i)=>`<div class="pt-row"><div class="pt-rk">${i+1}</div><div class="pt-in"><div class="pt-nm">${nm}</div><div class="pt-rp">今月集計</div></div><div class="pt-st"><div class="pti"><div class="pti-v" style="color:var(--g)">${v.tu}</div><div class="pti-l">TU受領</div></div><div class="pti"><div class="pti-v" style="color:var(--ac)">${v.pnew}</div><div class="pti-l">新規商談</div></div><div class="pti"><div class="pti-v" style="color:var(--am)">${v.pexist}</div><div class="pti-l">既存商談</div></div></div></div>`).join("");
+  if(ptChart){ptChart.destroy();ptChart=null;}
+  if(arr.length>0){
+    ptChart=new Chart(document.getElementById("pt-chart"),{
+      type:"bar",
+      data:{labels:arr.map(([nm])=>nm.slice(0,7)),datasets:[
+        {label:"TU受領",data:arr.map(([,v])=>v.tu),backgroundColor:"rgba(52,211,153,.6)",borderRadius:3},
+        {label:"新規商談",data:arr.map(([,v])=>v.pnew),backgroundColor:"rgba(79,125,247,.6)",borderRadius:3}
+      ]},
+      options:{plugins:{legend:{labels:{color:"#8b90b0",font:{size:10}}}},scales:{x:{ticks:{color:"#5a5f7a",font:{size:10}},grid:{color:"rgba(46,50,72,.8)"}},y:{ticks:{color:"#5a5f7a",font:{size:10}},grid:{color:"rgba(46,50,72,.8)"}}}}
+    });
+  }
+}
+
+// WEEKLY
+let weekOffset=0;
+function getWeekRange(offset){
+  const now=new Date();const day=now.getDay();
+  const monday=new Date(now);monday.setDate(now.getDate()-(day===0?6:day-1)+(offset*7));
+  const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+  const fmt=d=>d.toISOString().split("T")[0];
+  return{start:fmt(monday),end:fmt(sunday),label:`${monday.getMonth()+1}/${monday.getDate()}〜${sunday.getMonth()+1}/${sunday.getDate()}`};
+}
+async function loadWeekly(){
+  const [reports, deals] = await Promise.all([apiGet({type:"report"}), apiGet({type:"deal"})]);
+  document.getElementById("week-tabs").innerHTML=[-2,-1,0].map(i=>{const{label}=getWeekRange(i);const lbl=i===0?"今週":i===-1?"先週":"先々週";return`<div class="wtab ${weekOffset===i?"on":""}" onclick="setWeekOffset(${i})">${lbl}（${label}）</div>`;}).join("");
+  const{start,end,label}=getWeekRange(weekOffset);
+  document.getElementById("weekly-lbl").textContent=label;
+  const wr=reports.filter(r=>{const d=String(r["日付"]);return d>=start&&d<=end;});
+
+  const dVisit=wr.reduce((s,r)=>s+num(r,"直販訪問"),0);
+  const dInd  =wr.reduce((s,r)=>s+num(r,"直販内示"),0);
+  const dWon  =wr.reduce((s,r)=>s+num(r,"直販受注"),0);
+  const tuR   =wr.reduce((s,r)=>s+num(r,"TU受領"),0);
+  const tuI   =wr.reduce((s,r)=>s+num(r,"TU内示"),0);
+  const tuW   =wr.reduce((s,r)=>s+num(r,"TU受注"),0);
+  const tuRate=tuR>0?Math.round((tuI+tuW)/tuR*100):0;
+  const prtTot=wr.reduce((s,r)=>s+num(r,"販売店新規")+num(r,"販売店既存"),0);
+  const endCont=wr.reduce((s,r)=>s+num(r,"エンド書類回収")+num(r,"エンドクレーム")+num(r,"エンド納品")+num(r,"エンド打合せ"),0);
+  const totalNego=dVisit+tuR;
+  const totalContact=totalNego+endCont;
+  const totalInd=dInd+tuI;
+  const totalWon=dWon+tuW;  // 日報の受注数（変わらず）
+  const contactRate=totalContact>0?Math.round(totalNego/totalContact*100):0;
+  const indRate=totalNego>0?Math.round(totalInd/totalNego*100):0;
+  const wonRate=totalInd>0?Math.round(totalWon/totalInd*100):0;
+
+  document.getElementById("weekly-kpi").innerHTML=`
+    <div class="kpi bl"><div class="kpi-l">週間 接触数</div><div class="kpi-v bl">${totalContact}件</div><div class="kpi-s">商談率 ${contactRate}% (商談${totalNego}件)</div></div>
+    <div class="kpi am"><div class="kpi-l">内示率</div><div class="kpi-v am">${indRate}%</div><div class="kpi-s">内示 ${totalInd}件</div></div>
+    <div class="kpi gr"><div class="kpi-l">受注率</div><div class="kpi-v gr">${wonRate}%</div><div class="kpi-s">受注 ${totalWon}件</div></div>
+    <div class="kpi rd"><div class="kpi-l">エンド対応</div><div class="kpi-v rd">${endCont}件</div><div class="kpi-s">書類・クレーム・納品・打合せ</div></div>`;
+
+  // 転換率バー
+  const rates=[
+    {l:"商談→内示",v:indRate,c:"var(--am)"},
+    {l:"内示→受注",v:wonRate,c:"var(--g)"},
+    {l:"TU決定率",v:tuRate,c:"var(--ac)"},
+  ];
+  document.getElementById("weekly-rates").innerHTML=rates.map(r=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+        <span style="color:var(--tx2);">${r.l}</span>
+        <span style="font-family:var(--mo);font-weight:700;color:${r.c};">${r.v}%</span>
+      </div>
+      <div style="height:8px;background:var(--sf3);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${Math.min(r.v,100)}%;background:${r.c};border-radius:4px;transition:.5s;"></div>
+      </div>
+    </div>`).join("");
+
+  // ステータス分布
+  const stCounts={prospect:0,negotiating:0,indicated:0,ordered:0,applying:0,adopted:0,lost:0,rejected:0};
+  deals.forEach(d=>{ if(stCounts[d["ステータス"]]!==undefined) stCounts[d["ステータス"]]++; });
+  const stTotal=Object.values(stCounts).reduce((a,b)=>a+b,0)||1;
+  const stDefs=[{k:"prospect",l:"見込",c:"var(--ac)"},{k:"negotiating",l:"商談中",c:"var(--am)"},{k:"indicated",l:"内示",c:"var(--pu)"},{k:"ordered",l:"受注",c:"var(--g)"},{k:"applying",l:"申請中",c:"#38bdf8"},{k:"adopted",l:"採択",c:"#10b981"},{k:"lost",l:"失注",c:"var(--rd)"},{k:"rejected",l:"不採択",c:"var(--rd)"}];
+  document.getElementById("weekly-status-dist").innerHTML=stDefs.map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:11px;color:var(--tx2);width:52px;">${s.l}</span>
+      <div style="flex:1;height:16px;background:var(--sf3);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${Math.round(stCounts[s.k]/stTotal*100)}%;background:${s.c};opacity:.8;border-radius:3px;"></div>
+      </div>
+      <span style="font-size:11px;font-family:var(--mo);color:${s.c};width:28px;text-align:right;">${stCounts[s.k]}</span>
+    </div>`).join("");
+
+  // 担当者テーブル
+  const persons=["橋野 浩一","川﨑 慧","浦塚 弘樹","坂本 憲司","又吉 俊","千代島 奨磨"];
+  const active=[...new Set(wr.map(r=>r["担当者"]))];
+  const show=persons.filter(p=>active.includes(p));
+  if(show.length===0){document.getElementById("weekly-table").innerHTML=`<div style="padding:12px;font-size:11px;color:var(--tx3);">この週のデータなし</div>`;}
+  else{
+    const rows=show.map(nm=>{
+      const pr=wr.filter(r=>r["担当者"]===nm);
+      const dv=pr.reduce((s,r)=>s+num(r,"直販訪問"),0);
+      const di=pr.reduce((s,r)=>s+num(r,"直販内示"),0);
+      const dw=pr.reduce((s,r)=>s+num(r,"直販受注"),0);
+      const tu=pr.reduce((s,r)=>s+num(r,"TU受領"),0);
+      const ti=pr.reduce((s,r)=>s+num(r,"TU内示"),0);
+      const tw=pr.reduce((s,r)=>s+num(r,"TU受注"),0);
+      const pt=pr.reduce((s,r)=>s+num(r,"販売店新規")+num(r,"販売店既存"),0);
+      const ec=pr.reduce((s,r)=>s+num(r,"エンド書類回収")+num(r,"エンドクレーム")+num(r,"エンド納品")+num(r,"エンド打合せ"),0);
+      const nego=dv+tu;
+      const contact=nego+ec;
+      const ind=di+ti;
+      const won=dw+tw;
+      const cr=contact>0?Math.round(nego/contact*100):0;
+      const ir=nego>0?Math.round(ind/nego*100):0;
+      const wr2=ind>0?Math.round(won/ind*100):0;
+      return`<tr><td class="td-n">${nm}</td><td class="td-m">${contact}</td><td class="td-m ${cr>=60?"gr":cr>=40?"am":"rd"}">${contact>0?cr+"%":"—"}</td><td class="td-m">${ind}</td><td class="td-m ${ir>=30?"gr":ir>=15?"am":"rd"}">${nego>0?ir+"%":"—"}</td><td class="td-m">${won}</td><td class="td-m ${wr2>=50?"gr":wr2>=30?"am":"rd"}">${ind>0?wr2+"%":"—"}</td><td class="td-m">${pt}</td></tr>`;
+    });
+    document.getElementById("weekly-table").innerHTML=`<table><thead><tr><th>担当者</th><th>接触数</th><th>商談率</th><th>内示数</th><th>内示率</th><th>受注数</th><th>受注率</th><th>販売店</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+  }
+
+  // 担当者別トピック
+  const topicByPerson={};
+  wr.filter(r=>r["トピック"]).forEach(r=>{
+    if(!topicByPerson[r["担当者"]]) topicByPerson[r["担当者"]]=[];
+    topicByPerson[r["担当者"]].push({date:r["日付"],text:r["トピック"]});
+  });
+  const topicHtml=Object.entries(topicByPerson).map(([nm,items])=>`
+    <div style="margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:6px;">👤 ${nm}</div>
+      ${items.map(t=>`<div style="padding:8px 12px;background:var(--sf2);border-radius:6px;margin-bottom:6px;border-left:3px solid var(--am);">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;">${t.date}</div>
+        <div style="font-size:12px;color:var(--tx2);">${t.text}</div>
+      </div>`).join("")}
+    </div>`).join("");
+  document.getElementById("weekly-topics").innerHTML=topicHtml||`<div style="color:var(--tx3);font-size:11px;padding:8px 0;">この週のトピックなし</div>`;
+}
+function setWeekOffset(offset){weekOffset=offset;loadWeekly();}
+
+// MONTHLY
+async function loadMonthly(){
+  const month=new Date().toISOString().slice(0,7);
+  document.getElementById("monthly-lbl").textContent=month.replace("-","年")+"月";
+  const [reports, deals, memberRaw] = await Promise.all([apiGet({type:"report"}), apiGet({type:"deal"}), apiGet({type:"member"})]);
+  // メンバーデータをローカルにも更新
+  memberRaw.forEach(r => {
+    memberData[r["担当者"]] = {
+      annualBudget: parseInt(r["年間予算"])||0,
+      partners: r["担当販売店"] ? r["担当販売店"].split(",").map(s=>s.trim()).filter(Boolean) : [],
+      fiscalYear: parseInt(r["年度"])||new Date().getFullYear(),
+      id: r["id"]||""
+    };
+  });
+  const mr=reports.filter(r=>String(r["日付"]).startsWith(month));
+
+  const dVisit=mr.reduce((s,r)=>s+num(r,"直販訪問"),0);
+  const dInd  =mr.reduce((s,r)=>s+num(r,"直販内示"),0);
+  const dWon  =mr.reduce((s,r)=>s+num(r,"直販受注"),0);
+  const tuR   =mr.reduce((s,r)=>s+num(r,"TU受領"),0);
+  const tuI   =mr.reduce((s,r)=>s+num(r,"TU内示"),0);
+  const tuW   =mr.reduce((s,r)=>s+num(r,"TU受注"),0);
+  const tuRate=tuR>0?Math.round((tuI+tuW)/tuR*100):0;
+  const prtTot=mr.reduce((s,r)=>s+num(r,"販売店新規")+num(r,"販売店既存"),0);
+  const mEndCont=mr.reduce((s,r)=>s+num(r,"エンド書類回収")+num(r,"エンドクレーム")+num(r,"エンド納品")+num(r,"エンド打合せ"),0);
+  const totalNego=dVisit+tuR;
+  const totalContact=totalNego+mEndCont;
+  const totalInd=dInd+tuI;
+  const totalWon=dWon+tuW;  // 日報の受注数（変わらず）
+  const contactRate=totalContact>0?Math.round(totalNego/totalContact*100):0;
+  const indRate=totalNego>0?Math.round(totalInd/totalNego*100):0;
+  const wonRate=totalInd>0?Math.round(totalWon/totalInd*100):0;
+
+  document.getElementById("monthly-kpi").innerHTML=`
+    <div class="kpi bl"><div class="kpi-l">月間 接触数</div><div class="kpi-v bl">${totalContact}件</div><div class="kpi-s">商談率 ${contactRate}% (商談${totalNego}件)</div></div>
+    <div class="kpi am"><div class="kpi-l">内示率</div><div class="kpi-v am">${indRate}%</div><div class="kpi-s">内示 ${totalInd}件</div></div>
+    <div class="kpi gr"><div class="kpi-l">受注率</div><div class="kpi-v gr">${wonRate}%</div><div class="kpi-s">受注 ${totalWon}件</div></div>
+    <div class="kpi rd"><div class="kpi-l">エンド対応</div><div class="kpi-v rd">${mEndCont}件</div><div class="kpi-s">書類・クレーム・納品・打合せ</div></div>`;
+
+  // 転換率
+  const rates=[{l:"商談→内示",v:indRate,c:"var(--am)"},{l:"内示→受注",v:wonRate,c:"var(--g)"},{l:"TU決定率",v:tuRate,c:"var(--ac)"}];
+  document.getElementById("monthly-rates").innerHTML=rates.map(r=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+        <span style="color:var(--tx2);">${r.l}</span>
+        <span style="font-family:var(--mo);font-weight:700;color:${r.c};">${r.v}%</span>
+      </div>
+      <div style="height:8px;background:var(--sf3);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${Math.min(r.v,100)}%;background:${r.c};border-radius:4px;"></div>
+      </div>
+    </div>`).join("");
+
+  // ステータス分布
+  const stCounts={prospect:0,negotiating:0,indicated:0,ordered:0,applying:0,adopted:0,lost:0,rejected:0};
+  deals.forEach(d=>{ if(stCounts[d["ステータス"]]!==undefined) stCounts[d["ステータス"]]++; });
+  const stTotal=Object.values(stCounts).reduce((a,b)=>a+b,0)||1;
+  const stDefs=[{k:"prospect",l:"見込",c:"var(--ac)"},{k:"negotiating",l:"商談中",c:"var(--am)"},{k:"indicated",l:"内示",c:"var(--pu)"},{k:"ordered",l:"受注",c:"var(--g)"},{k:"applying",l:"申請中",c:"#38bdf8"},{k:"adopted",l:"採択",c:"#10b981"},{k:"lost",l:"失注",c:"var(--rd)"},{k:"rejected",l:"不採択",c:"var(--rd)"}];
+  document.getElementById("monthly-status-dist").innerHTML=stDefs.map(s=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:11px;color:var(--tx2);width:52px;">${s.l}</span>
+      <div style="flex:1;height:16px;background:var(--sf3);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${Math.round(stCounts[s.k]/stTotal*100)}%;background:${s.c};opacity:.8;border-radius:3px;"></div>
+      </div>
+      <span style="font-size:11px;font-family:var(--mo);color:${s.c};width:28px;text-align:right;">${stCounts[s.k]}</span>
+    </div>`).join("");
+
+  // 粗利集計（受注案件）
+  const wonDeals=deals.filter(d=>["ordered","applying","adopted"].includes(d["ステータス"]));
+  const gpList=wonDeals.map(d=>num(d,"粗利")).filter(v=>v>0);
+  const gpTotal=gpList.reduce((a,b)=>a+b,0);
+  const gpAvg=gpList.length>0?Math.round(gpTotal/gpList.length):0;
+  const gpMax=gpList.length>0?Math.max(...gpList):0;
+  // 予算進捗
+  const budgetRows = MEMBERS.map((nm,i) => {
+    const data = getMemberBudget(nm);
+    const monthlyBudget = data.annualBudget > 0 ? Math.round(data.annualBudget/12) : 0;
+    const nmGpActual = deals.filter(d=>d["担当者"]===nm&&["ordered","applying","adopted"].includes(d["ステータス"])).reduce((s,d)=>s+num(d,"粗利"),0);
+    const progress = monthlyBudget > 0 ? Math.min(Math.round(nmGpActual/monthlyBudget*100),200) : 0;
+    const barColor = progress>=100?"var(--g)":progress>=70?"var(--am)":"var(--rd)";
+    const partners = data.partners.length > 0 ? data.partners.join(" / ") : "—";
+    return `<div style="margin-bottom:12px;padding:12px;background:var(--sf2);border-radius:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div class="av" style="background:${MEMBER_COLORS[i]};width:28px;height:28px;font-size:11px;">${nm[0]}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;">${nm}</div>
+          <div style="font-size:10px;color:var(--tx3);">担当：${partners}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:15px;font-weight:700;font-family:var(--mo);color:${barColor};">${progress}%</div>
+          <div style="font-size:10px;color:var(--tx3);">¥${nmGpActual}万 / ¥${monthlyBudget}万</div>
+        </div>
+      </div>
+      ${monthlyBudget > 0 ? `<div style="height:10px;background:var(--sf3);border-radius:5px;overflow:hidden;">
+        <div style="height:100%;width:${Math.min(progress,100)}%;background:${barColor};border-radius:5px;transition:.5s;"></div>
+      </div>` : `<div style="font-size:11px;color:var(--tx3);">予算未設定（メンバー管理から設定できます）</div>`}
+    </div>`;
+  }).join("");
+  const budgetEl = document.getElementById("monthly-budget-progress");
+  if(budgetEl) budgetEl.innerHTML = budgetRows;
+
+  document.getElementById("monthly-gp").innerHTML=wonDeals.length===0
+    ?`<div style="font-size:12px;color:var(--tx3);">受注案件なし（案件カルテから粗利を入力してください）</div>`
+    :`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+      <div style="background:var(--sf2);border-radius:7px;padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;">受注件数</div>
+        <div style="font-size:20px;font-weight:700;font-family:var(--mo);color:var(--g);">${wonDeals.length}件</div>
+      </div>
+      <div style="background:var(--sf2);border-radius:7px;padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;">粗利合計</div>
+        <div style="font-size:20px;font-weight:700;font-family:var(--mo);color:var(--pu);">¥${gpTotal}万</div>
+      </div>
+      <div style="background:var(--sf2);border-radius:7px;padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;">平均粗利</div>
+        <div style="font-size:20px;font-weight:700;font-family:var(--mo);color:var(--pu);">¥${gpAvg}万</div>
+      </div>
+      <div style="background:var(--sf2);border-radius:7px;padding:10px 12px;text-align:center;">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;">最高粗利</div>
+        <div style="font-size:20px;font-weight:700;font-family:var(--mo);color:var(--pu);">¥${gpMax}万</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      ${wonDeals.filter(d=>num(d,"粗利")>0).sort((a,b)=>num(b,"粗利")-num(a,"粗利")).map(d=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd);">
+          <div style="flex:1;font-size:12px;">${d["案件名"]||""}</div>
+          <div style="font-size:11px;color:var(--tx3);">${d["担当者"]||""}</div>
+          <div style="font-size:13px;font-weight:700;font-family:var(--mo);color:var(--pu);">¥${num(d,"粗利")}万</div>
+        </div>`).join("")}
+    </div>`;
+
+  // 担当者別実績テーブル
+  const persons=[...new Set(mr.map(r=>r["担当者"]))];
+  const rows=persons.map(nm=>{
+    const pr=mr.filter(r=>r["担当者"]===nm);
+    const dv=pr.reduce((s,r)=>s+num(r,"直販訪問"),0);
+    const dp=pr.reduce((s,r)=>s+num(r,"直販新規見込"),0);
+    const di=pr.reduce((s,r)=>s+num(r,"直販内示"),0);
+    const dw=pr.reduce((s,r)=>s+num(r,"直販受注"),0);
+    const tu=pr.reduce((s,r)=>s+num(r,"TU受領"),0);
+    const ti=pr.reduce((s,r)=>s+num(r,"TU内示"),0);
+    const tw=pr.reduce((s,r)=>s+num(r,"TU受注"),0);
+    const pt=pr.reduce((s,r)=>s+num(r,"販売店新規")+num(r,"販売店既存"),0);
+    const nego=dv+tu;
+    const ind=di+ti;
+    const won=dw+tw;
+    const ec=pr.reduce((s,r)=>s+num(r,"エンド書類回収")+num(r,"エンドクレーム")+num(r,"エンド納品")+num(r,"エンド打合せ"),0);
+    const contact=nego+ec;
+    const cr=contact>0?Math.round(nego/contact*100):0;
+    const ir=nego>0?Math.round(ind/nego*100):0;
+    const wr=ind>0?Math.round(won/ind*100):0;
+    const nmGp=deals.filter(d=>d["担当者"]===nm&&["ordered","applying","adopted"].includes(d["ステータス"])).reduce((s,d)=>s+num(d,"粗利"),0);
+    return`<tr><td class="td-n">${nm}</td><td class="td-m">${contact}</td><td class="td-m ${cr>=60?"gr":cr>=40?"am":"rd"}">${contact>0?cr+"%":"—"}</td><td class="td-m">${ind}</td><td class="td-m ${ir>=30?"gr":ir>=15?"am":"rd"}">${nego>0?ir+"%":"—"}</td><td class="td-m">${won}</td><td class="td-m ${wr>=50?"gr":wr>=30?"am":"rd"}">${ind>0?wr+"%":"—"}</td><td class="td-m">${pt}</td><td class="td-m" style="color:var(--pu);">${nmGp>0?"¥"+nmGp+"万":"—"}</td></tr>`;
+  });
+  const totRow=["合計",totalContact,contactRate+"%",totalInd,indRate+"%",totalWon,wonRate+"%",prtTot,"¥"+gpTotal+"万"];
+  document.getElementById("monthly-table").innerHTML=`<table>
+    <thead><tr><th>担当者</th><th>接触数</th><th>商談率</th><th>内示数</th><th>内示率</th><th>受注数</th><th>受注率</th><th>販売店</th><th>粗利</th></tr></thead>
+    <tbody>${rows.join("")}<tr style="font-weight:700;background:rgba(79,125,247,.04);">${totRow.map((v,i)=>`<td class="${i===0?"td-n":"td-m"}" style="${i===0?"color:var(--ac)":""}">${v}</td>`).join("")}</tr></tbody>
+  </table>`;
+
+  // 担当者別トピック
+  const topicByPerson={};
+  mr.filter(r=>r["トピック"]).forEach(r=>{
+    if(!topicByPerson[r["担当者"]]) topicByPerson[r["担当者"]]=[];
+    topicByPerson[r["担当者"]].push({date:r["日付"],text:r["トピック"]});
+  });
+  const topicHtml=Object.entries(topicByPerson).map(([nm,items])=>`
+    <div style="margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:6px;">👤 ${nm}</div>
+      ${items.sort((a,b)=>a.date>b.date?1:-1).map(t=>`<div style="padding:8px 12px;background:var(--sf2);border-radius:6px;margin-bottom:6px;border-left:3px solid var(--am);">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:3px;">${t.date}</div>
+        <div style="font-size:12px;color:var(--tx2);">${t.text}</div>
+      </div>`).join("")}
+    </div>`).join("");
+  document.getElementById("monthly-topics").innerHTML=topicHtml||`<div style="color:var(--tx3);font-size:11px;padding:8px 0;">今月のトピックなし</div>`;
+
+  const orderedCount=deals.filter(d=>d["ステータス"]==="ordered").length;
+  const applyingCount=deals.filter(d=>d["ステータス"]==="applying").length;
+  const adoptedCount=deals.filter(d=>d["ステータス"]==="adopted").length;
+  const orderedAmtM=deals.filter(d=>d["ステータス"]==="ordered").reduce((s,d)=>s+num(d,"金額"),0);
+  const adoptedAmtM=deals.filter(d=>d["ステータス"]==="adopted").reduce((s,d)=>s+num(d,"金額"),0);
+  document.getElementById("monthly-summary").innerHTML=
+    `・月間商談数 <strong style="color:var(--ac)">${totalNego}件</strong>、内示率 <strong style="color:var(--am)">${indRate}%</strong>、受注率 <strong style="color:var(--g)">${wonRate}%</strong><br>`+
+    `・受注 <strong style="color:var(--g)">${orderedCount}件（¥${orderedAmtM}万）</strong> ／ 申請中 <strong style="color:#38bdf8">${applyingCount}件</strong> ／ 採択 <strong style="color:var(--g)">${adoptedCount}件（¥${adoptedAmtM}万）</strong><br>`+
+    `・粗利合計 <strong style="color:var(--pu)">¥${gpTotal}万</strong>（平均 ¥${gpAvg}万）、TU決定率 <strong style="color:var(--ac)">${tuRate}%</strong><br>`+
+    `・入金見込（受注）¥${orderedAmtM}万 ／ 入金予定（採択）¥${adoptedAmtM}万`;
+}
+
+
+// ============================================================
+//  サブメニュー開閉
+// ============================================================
+function toggleDealsMenu(){
+  const menu=document.getElementById("deals-submenu");
+  const arrow=document.getElementById("deals-arrow");
+  menu.classList.toggle("open");
+  arrow.classList.toggle("open");
+}
+function setDealsSubActive(type){
+  document.getElementById("nav-deals-end").classList.toggle("on", type==="end");
+  document.getElementById("nav-deals-partner").classList.toggle("on", type==="partner");
+  document.getElementById("deals-submenu").classList.add("open");
+  document.getElementById("deals-arrow").classList.add("open");
+}
+
+// ============================================================
+//  販売店開拓管理
+// ============================================================
+let allPartnerDevs=[];
+let pdStatusFilter="all";
+let currentPdId=null;
+
+const PD_ST_C={"非対応":"st-p","1stコンタクト":"st-n","面談済み":"st-i","対応中":"st-i","検討中":"st-n","契約":"st-w","除外":"st-l","CLOSE":"st-l"};
+const PD_ST_COLOR={"非対応":"var(--tx3)","1stコンタクト":"var(--ac)","面談済み":"var(--am)","対応中":"var(--am)","検討中":"var(--am)","契約":"var(--g)","除外":"var(--rd)","CLOSE":"var(--rd)"};
+
+async function loadPartnerDev(){
+  allPartnerDevs=await apiGet({type:"partnerdev"});
+  applyPartnerDevFilter();
+}
+function toggleAddPartnerDev(){
+  const el=document.getElementById("add-pd-cd");
+  el.style.display=el.style.display==="none"?"block":"none";
+}
+function setPdStatusFilter(v){
+  pdStatusFilter=v;
+  [["all","pf-all"],["非対応","pf-none"],["1stコンタクト","pf-first"],["面談済み","pf-meeting"],["対応中","pf-handling"],["検討中","pf-considering"],["契約","pf-contract"],["除外","pf-exclude"],["CLOSE","pf-close"]].forEach(([s,id])=>{
+    const el=document.getElementById(id);if(el) el.classList.toggle("on",s===v);
+  });
+  applyPartnerDevFilter();
+}
+function applyPartnerDevFilter(){
+  const q=(document.getElementById("pd-search")?.value||"").trim().toLowerCase();
+  let list=allPartnerDevs;
+  if(q) list=list.filter(d=>(d["代理店名"]||"").toLowerCase().includes(q)||(d["担当者"]||"").toLowerCase().includes(q)||(d["対応者"]||"").toLowerCase().includes(q));
+  if(pdStatusFilter!=="all") list=list.filter(d=>d["ステータス"]===pdStatusFilter);
+  renderPartnerDevList(list);
+}
+function renderPartnerDevList(list){
+  const countEl=document.getElementById("pd-count");
+  if(countEl) countEl.textContent=`${list.length}件 表示中`;
+  document.getElementById("pd-list").innerHTML=list.length===0
+    ?`<div style="padding:20px;font-size:12px;color:var(--tx3);text-align:center;">条件に一致する代理店がありません</div>`
+    :list.map(d=>`<div class="dl-row" onclick="openPdDetail('${d["id"]}')">
+        <div style="width:4px;height:52px;border-radius:3px;flex-shrink:0;background:${PD_ST_COLOR[d["ステータス"]]||"#888"}"></div>
+        <div class="dl-in">
+          <div class="dl-nm">${d["代理店名"]||""}</div>
+          <div class="dl-tags">
+            <span class="st ${PD_ST_C[d["ステータス"]]||""}">${d["ステータス"]||""}</span>
+            <span class="sub-tag">${d["リード元"]||""}</span>
+            ${d["都道府県"]?`<span class="sub-tag">${d["都道府県"]}</span>`:""}
+          </div>
+          <div class="dl-sub">担当：${d["担当者"]||""}　対応：${d["対応者"]||""}　登録 ${d["登録日"]||""}</div>
+        </div>
+        <div class="dl-rt"><div class="dl-hist" id="pd-hist-count-${d["id"]}">—</div></div>
+      </div>`).join("");
+  list.forEach(d=>loadPdHistCount(d["id"]));
+}
+async function loadPdHistCount(id){
+  const el=document.getElementById("pd-hist-count-"+id);
+  if(!el) return;
+  const hists=await apiGet({type:"pdhistory",dealId:id});
+  if(el) el.textContent=hists.length>0?`対応 ${hists.length}回`:"未対応";
+}
+async function submitPartnerDev(){
+  const btn=document.getElementById("pd-btn");btn.textContent="登録中...";btn.disabled=true;
+  const today=new Date().toISOString().split("T")[0];
+  const memoVal=document.getElementById("pd-memo").value;
+  const payload={代理店名:document.getElementById("pd-nm").value,担当者:document.getElementById("pd-person").value,リード元:document.getElementById("pd-lead").value,電話番号:document.getElementById("pd-tel").value,メール:document.getElementById("pd-email").value,都道府県:document.getElementById("pd-pref").value,対応者:document.getElementById("pd-handler").value,ステータス:document.getElementById("pd-status").value,メモ:memoVal,登録日:today};
+  const res=await apiPost({type:"partnerdev",action:"create",payload});
+  if(res.ok&&res.id&&memoVal){
+    await apiPost({type:"pdhistory",action:"create",payload:{代理店ID:res.id,代理店名:payload.代理店名,対応日:today,対応種別:"初回メモ",対応内容:memoVal,次回アクション:""}});
+  }
+  btn.textContent="登録";btn.disabled=false;toggleAddPartnerDev();
+  ["pd-nm","pd-person","pd-tel","pd-email","pd-pref","pd-memo"].forEach(id=>document.getElementById(id).value="");
+  toast("代理店を登録しました");
+  allPartnerDevs=await apiGet({type:"partnerdev"});
+  applyPartnerDevFilter();
+}
+async function openPdDetail(id){
+  currentPdId=id;
+  const all=await apiGet({type:"partnerdev"});
+  allPartnerDevs=all;
+  const d=all.find(x=>String(x["id"])===String(id));
+  if(!d) return;
+  const status=d["ステータス"]||"非対応";
+  document.getElementById("pd-detail-header").innerHTML=`
+    <div class="deal-header-top">
+      <div>
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">${d["リード元"]||""} ｜ ${d["都道府県"]||""}</div>
+        <div class="deal-title">${d["代理店名"]||""}</div>
+      </div>
+      <span class="st ${PD_ST_C[status]||""}" style="font-size:13px;padding:5px 12px;flex-shrink:0;">${status}</span>
+    </div>
+    <div class="deal-meta-grid">
+      <div class="deal-meta-item"><div class="deal-meta-label">担当者</div><div class="deal-meta-value">${d["担当者"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">電話番号</div><div class="deal-meta-value">${d["電話番号"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">メール</div><div class="deal-meta-value" style="font-size:11px;">${d["メール"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">対応者</div><div class="deal-meta-value">${d["対応者"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">登録日</div><div class="deal-meta-value">${d["登録日"]||"—"}</div></div>
+      <div class="deal-meta-item"><div class="deal-meta-label">メモ</div><div class="deal-meta-value" style="font-size:11px;color:var(--tx2);">${d["メモ"]||"—"}</div></div>
+    </div>
+    <div class="deal-edit-row">
+      <span style="font-size:11px;color:var(--tx3);">ステータス：</span>
+      <select id="pd-edit-status" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updatePdStatus('${id}',this.value)">
+        ${["非対応","1stコンタクト","面談済み","対応中","検討中","契約","除外","CLOSE"].map(s=>`<option value="${s}" ${status===s?"selected":""}>${s}</option>`).join("")}
+      </select>
+      <span style="font-size:11px;color:var(--tx3);margin-left:8px;">対応者：</span>
+      <select id="pd-edit-handler" style="width:auto;font-size:12px;padding:5px 8px;" onchange="updatePdHandler('${id}',this.value)">
+        ${["橋野 浩一","川﨑 慧","浦塚 弘樹","坂本 憲司","又吉 俊","千代島 奨磨"].map(p=>`<option ${d["対応者"]===p?"selected":""}>${p}</option>`).join("")}
+      </select>
+    </div>`;
+  document.getElementById("pd-hist-date").value=new Date().toISOString().split("T")[0];
+  document.getElementById("pd-hist-content").value="";
+  document.getElementById("pd-hist-next").value="";
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.getElementById("page-pd-detail").classList.add("on");
+  document.getElementById("mainScroll").scrollTop=0;
+  loadPdTimeline(id);
+}
+async function loadPdTimeline(id){
+  const el=document.getElementById("pd-timeline-wrap");
+  el.innerHTML=`<div class="ld"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div><span>読み込み中...</span></div>`;
+  const hists=await apiGet({type:"pdhistory",dealId:id});
+  if(hists.length===0){ el.innerHTML=`<div style="font-size:12px;color:var(--tx3);padding:12px 0;">対応記録がありません。</div>`; return; }
+  const sorted=[...hists].sort((a,b)=>a["対応日"]>b["対応日"]?1:-1);
+  el.innerHTML=`<div class="timeline">${sorted.map((h,i)=>{
+    const isFirst=i===0,isLatest=i===sorted.length-1,cls=isFirst?"first":isLatest?"latest":"";
+    return `<div class="tl-item ${cls}"><div class="tl-card ${cls}">
+      <div class="tl-date"><span>${h["対応日"]||""}</span><span class="tl-count">${i+1}回目 · ${h["対応種別"]||""}</span>
+      ${isLatest?`<span style="font-size:10px;background:rgba(52,211,153,.15);color:var(--g);padding:1px 6px;border-radius:4px;">最新</span>`:""}
+      ${isFirst?`<span style="font-size:10px;background:rgba(79,125,247,.15);color:var(--ac);padding:1px 6px;border-radius:4px;">初回</span>`:""}
+      </div>
+      <div class="tl-content">${(h["対応内容"]||"").replace(/\n/g,"<br>")}</div>
+      ${h["次回アクション"]?`<div class="tl-next"><div class="tl-next-label">📌 次回アクション</div><div class="tl-next-text">${h["次回アクション"].replace(/\n/g,"<br>")}</div></div>`:""}
+    </div></div>`;
+  }).join("")}</div>`;
+}
+async function submitPdHistory(){
+  const btn=document.getElementById("pd-hist-btn"),st=document.getElementById("pd-hist-status");
+  if(!currentPdId){ st.textContent="IDが見つかりません"; return; }
+  const content=document.getElementById("pd-hist-content").value;
+  if(!content){ st.textContent="対応内容を入力してください"; return; }
+  btn.textContent="保存中...";btn.disabled=true;st.textContent="";
+  const d=allPartnerDevs.find(x=>x["id"]===currentPdId);
+  await apiPost({type:"pdhistory",action:"create",payload:{代理店ID:currentPdId,代理店名:d?.["代理店名"]||"",対応日:document.getElementById("pd-hist-date").value,対応種別:document.getElementById("pd-hist-type").value,対応内容:content,次回アクション:document.getElementById("pd-hist-next").value}});
+  btn.textContent="📝 対応記録を追加";btn.disabled=false;
+  document.getElementById("pd-hist-content").value="";
+  document.getElementById("pd-hist-next").value="";
+  toast("対応記録を追加しました");
+  loadPdTimeline(currentPdId);
+}
+async function updateDealGP(dealId,val){
+  const gp=parseInt(val)||0;
+  await apiPost({type:"deal",action:"updateGP",payload:{id:dealId,粗利:gp}});
+  const d=allDeals.find(d=>d["id"]===dealId);if(d) d["粗利"]=gp;
+  const el=document.getElementById("detail-gp-disp");
+  if(el) el.textContent="¥"+gp+"万";
+  toast("粗利を更新しました");
+}
+async function updateDealField(dealId, field, val){
+  await apiPost({type:"deal",action:"updateField",payload:{id:dealId,field,value:val}});
+  const d=allDeals.find(d=>d["id"]===dealId);
+  if(d) d[field]=val;
+  toast(field+"を更新しました");
+}
+async function updatePdStatus(id,status){
+  await apiPost({type:"partnerdev",action:"update",payload:{id,ステータス:status}});
+  const d=allPartnerDevs.find(x=>x["id"]===id);if(d) d["ステータス"]=status;
+  toast("ステータスを更新しました");
+}
+async function updatePdHandler(id,handler){
+  await apiPost({type:"partnerdev",action:"updateHandler",payload:{id,対応者:handler}});
+  const d=allPartnerDevs.find(x=>x["id"]===id);if(d) d["対応者"]=handler;
+  toast("対応者を更新しました");
+}
+
+// ============================================================
+//  販売店マスタ
+// ============================================================
+let dealerTypeFilter = "all";
+
+async function loadDealer(){
+  dealerList = await apiGet({type:"dealer"});
+  applyDealerFilter();
+  // 案件登録の販売店プルダウンも更新
+  updateDealerDropdown();
+}
+
+function toggleAddDealer(){
+  const el=document.getElementById("add-dealer-cd");
+  el.style.display=el.style.display==="none"?"block":"none";
+}
+
+function setDealerTypeFilter(v){
+  dealerTypeFilter=v;
+  [["all","dt-all"],["TU","dt-tu"],["完クロ","dt-kanku"],["両方","dt-both"]].forEach(([s,id])=>{
+    const el=document.getElementById(id);if(el) el.classList.toggle("on",s===v);
+  });
+  applyDealerFilter();
+}
+
+function applyDealerFilter(){
+  const q=(document.getElementById("dealer-search")?.value||"").trim().toLowerCase();
+  let list=dealerList;
+  if(q) list=list.filter(d=>(d["販売店名"]||"").toLowerCase().includes(q)||(d["担当者"]||"").toLowerCase().includes(q)||(d["エリア"]||"").toLowerCase().includes(q));
+  if(dealerTypeFilter!=="all") list=list.filter(d=>d["種別"]===dealerTypeFilter);
+  renderDealerList(list);
+}
+
+function renderDealerList(list){
+  const typeColor={"TU":"var(--g)","完クロ":"var(--am)","両方":"var(--ac)"};
+  const countEl=document.getElementById("dealer-count");
+  if(countEl) countEl.textContent=`${list.length}件 表示中`;
+
+  if(list.length===0){
+    document.getElementById("dealer-list").innerHTML=`<div style="padding:20px;font-size:12px;color:var(--tx3);text-align:center;">販売店が登録されていません</div>`;
+    return;
+  }
+  const rows=list.map(d=>`<tr>
+    <td style="font-weight:500;white-space:nowrap;">${d["販売店名"]||""}</td>
+    <td style="white-space:nowrap;font-size:11px;">${d["担当者"]||"—"}</td>
+    <td style="white-space:nowrap;font-size:11px;">${d["電話"]||"—"}</td>
+    <td style="white-space:nowrap;font-size:11px;">${d["メール"]||"—"}</td>
+    <td style="white-space:nowrap;"><span class="bx" style="background:rgba(${d["種別"]==="TU"?"52,211,153":d["種別"]==="完クロ"?"245,158,11":"79,125,247"},.15);color:${typeColor[d["種別"]]||"var(--tx2)"};">${d["種別"]||"—"}</span></td>
+    <td style="white-space:nowrap;font-size:11px;">${d["担当営業"]||"—"}</td>
+    <td style="white-space:nowrap;font-size:11px;">${d["得意業種"]||"—"}</td>
+    <td style="white-space:nowrap;font-size:11px;">${d["エリア"]||"—"}</td>
+    <td style="font-size:11px;color:var(--tx2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d["メモ"]||"—"}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn btn-g btn-sm" onclick="editDealer('${d["id"]}')">編集</button>
+    </td>
+  </tr>`).join("");
+  document.getElementById("dealer-list").innerHTML=`<table style="width:100%;border-collapse:collapse;min-width:900px;">
+    <thead><tr style="background:var(--sf);">
+      ${["販売店名","担当者","電話","メール","種別","担当営業(ALL)","得意業種","エリア","メモ",""].map(h=>`<th style="text-align:left;font-size:10px;font-weight:700;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;">${h}</th>`).join("")}
+    </tr></thead>
+    <tbody style="font-size:12px;">${rows}</tbody>
+  </table>`;
+}
+
+async function submitDealer(){
+  const btn=document.getElementById("dealer-btn");btn.textContent="登録中...";btn.disabled=true;
+  const payload={
+    販売店名:document.getElementById("dl-nm").value,
+    担当者:document.getElementById("dl-person").value,
+    電話:document.getElementById("dl-tel").value,
+    メール:document.getElementById("dl-email").value,
+    担当営業:document.getElementById("dl-sales").value,
+    種別:document.getElementById("dl-type").value,
+    得意業種:document.getElementById("dl-industry").value,
+    エリア:document.getElementById("dl-area").value,
+    メモ:document.getElementById("dl-memo").value,
+    登録日:new Date().toISOString().split("T")[0],
+  };
+  const res=await apiPost({type:"dealer",action:"create",payload});
+  btn.textContent="登録";btn.disabled=false;
+  if(res.ok){
+    toggleAddDealer();
+    ["dl-nm","dl-person","dl-tel","dl-email","dl-industry","dl-area","dl-memo"].forEach(id=>document.getElementById(id).value="");
+    toast("販売店を登録しました");
+    dealerList=await apiGet({type:"dealer"});
+    applyDealerFilter();
+    updateDealerDropdown();
+  }
+}
+
+function editDealer(id){
+  const d=dealerList.find(x=>String(x["id"])===String(id));
+  if(!d) return;
+  // フォームに値をセット
+  document.getElementById("dl-nm").value=d["販売店名"]||"";
+  document.getElementById("dl-person").value=d["担当者"]||"";
+  document.getElementById("dl-tel").value=d["電話"]||"";
+  document.getElementById("dl-email").value=d["メール"]||"";
+  document.getElementById("dl-sales").value=d["担当営業"]||"";
+  document.getElementById("dl-type").value=d["種別"]||"TU";
+  document.getElementById("dl-industry").value=d["得意業種"]||"";
+  document.getElementById("dl-area").value=d["エリア"]||"";
+  document.getElementById("dl-memo").value=d["メモ"]||"";
+  document.getElementById("add-dealer-cd").style.display="block";
+  // 登録ボタンを更新に変更
+  const btn=document.getElementById("dealer-btn");
+  btn.textContent="更新";
+  btn.onclick=async()=>{
+    btn.textContent="更新中...";btn.disabled=true;
+    const payload={id,販売店名:document.getElementById("dl-nm").value,担当者:document.getElementById("dl-person").value,電話:document.getElementById("dl-tel").value,メール:document.getElementById("dl-email").value,担当営業:document.getElementById("dl-sales").value,種別:document.getElementById("dl-type").value,得意業種:document.getElementById("dl-industry").value,エリア:document.getElementById("dl-area").value,メモ:document.getElementById("dl-memo").value};
+    await apiPost({type:"dealer",action:"update",payload});
+    btn.textContent="登録";btn.disabled=false;btn.onclick=submitDealer;
+    toggleAddDealer();
+    toast("販売店を更新しました");
+    dealerList=await apiGet({type:"dealer"});
+    applyDealerFilter();
+    updateDealerDropdown();
+  };
+  document.getElementById("add-dealer-cd").scrollIntoView({behavior:"smooth"});
+}
+
+// 案件登録の販売店プルダウンをマスタから更新
+function updateDealerDropdown(){
+  const sel=document.getElementById("nd-pt-select");
+  if(!sel) return;
+  const current=sel.value;
+  sel.innerHTML=`<option value="">— 選択 —</option>`+dealerList.map(d=>`<option value="${d["販売店名"]}" ${d["販売店名"]===current?"selected":""}>${d["販売店名"]}（${d["種別"]||""}）</option>`).join("")+`<option value="manual">手入力...</option>`;
+}
+
+function onDealerSelectChange(val){
+  const input=document.getElementById("nd-pt");
+  if(val==="manual"){
+    input.style.display="block";
+    input.focus();
+  } else {
+    input.style.display="none";
+    input.value=val;
+  }
+}
+
+// ============================================================
+//  メンバー管理
+// ============================================================
+async function loadMembers(){
+  const raw = await apiGet({type:"member"});
+  memberData = {};
+  raw.forEach(r => {
+    memberData[r["担当者"]] = {
+      annualBudget: parseInt(r["年間予算"])||0,
+      partners: r["担当販売店"] ? r["担当販売店"].split(",").map(s=>s.trim()).filter(Boolean) : [],
+      fiscalYear: parseInt(r["年度"])||new Date().getFullYear(),
+      id: r["id"]||""
+    };
+  });
+  renderMemberCards();
+}
+
+function getMemberBudget(name){
+  return memberData[name]||{annualBudget:0,partners:[],fiscalYear:new Date().getFullYear()};
+}
+
+function renderMemberCards(){
+  const container = document.getElementById("member-cards");
+  if(!container) return;
+  container.innerHTML = MEMBERS.map((nm,i) => {
+    const data = getMemberBudget(nm);
+    const monthly = data.annualBudget > 0 ? Math.round(data.annualBudget/12) : 0;
+    const partnersStr = data.partners.join(", ")||"未設定";
+    return `<div class="cd" style="border-top:3px solid ${MEMBER_COLORS[i]};">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="av" style="background:${MEMBER_COLORS[i]};width:36px;height:36px;font-size:14px;">${nm[0]}</div>
+        <div><div style="font-size:14px;font-weight:700;">${nm}</div><div style="font-size:11px;color:var(--tx3);">月次予算 ¥${monthly}万 / 月</div></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">年間粗利予算（万円）</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <input type="number" id="budget-${i}" value="${data.annualBudget||""}" placeholder="0" style="font-size:13px;padding:6px 10px;border-radius:6px;background:var(--sf2);border:1px solid var(--bd);color:var(--tx);width:120px;">
+          <input type="number" id="fyear-${i}" value="${data.fiscalYear||new Date().getFullYear()}" placeholder="2025" style="font-size:13px;padding:6px 10px;border-radius:6px;background:var(--sf2);border:1px solid var(--bd);color:var(--tx);width:80px;" title="年度">
+          <button class="btn btn-p btn-sm" onclick="saveMemberBudget(${i},'${nm}')">保存</button>
+        </div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:3px;">左：年間予算（万円）　右：年度</div>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">担当販売店</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <input type="text" id="partners-${i}" value="${data.partners.join(', ')}" placeholder="M&Kソリューション, Sail株式会社" list="dealer-datalist-${i}" style="flex:1;font-size:12px;padding:6px 10px;border-radius:6px;background:var(--sf2);border:1px solid var(--bd);color:var(--tx);">
+          <datalist id="dealer-datalist-${i}">${dealerList.map(d=>`<option value="${d["販売店名"]}"></option>`).join("")}</datalist>
+          <button class="btn btn-g btn-sm" onclick="saveMemberPartners(${i},'${nm}')">保存</button>
+        </div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:3px;">カンマ区切りで複数入力</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:var(--sf2);border-radius:6px;font-size:11px;color:var(--tx2);">
+        担当販売店：${partnersStr}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function saveMemberBudget(idx, name){
+  const budget = parseInt(document.getElementById("budget-"+idx)?.value)||0;
+  const fyear  = parseInt(document.getElementById("fyear-"+idx)?.value)||new Date().getFullYear();
+  const existing = getMemberBudget(name);
+  const payload = {担当者:name, 年間予算:budget, 年度:fyear, 担当販売店:existing.partners.join(",")};
+  const res = await apiPost({type:"member",action:"upsert",payload});
+  if(res.ok){
+    if(!memberData[name]) memberData[name]={};
+    memberData[name].annualBudget = budget;
+    memberData[name].fiscalYear = fyear;
+    if(res.id) memberData[name].id = res.id;
+    toast(name+"の予算を保存しました");
+    renderMemberCards();
+  }
+}
+
+async function saveMemberPartners(idx, name){
+  const partnersStr = document.getElementById("partners-"+idx)?.value||"";
+  const partners = partnersStr.split(",").map(s=>s.trim()).filter(Boolean);
+  const existing = getMemberBudget(name);
+  const payload = {担当者:name, 年間予算:existing.annualBudget||0, 年度:existing.fiscalYear||new Date().getFullYear(), 担当販売店:partners.join(",")};
+  const res = await apiPost({type:"member",action:"upsert",payload});
+  if(res.ok){
+    if(!memberData[name]) memberData[name]={};
+    memberData[name].partners = partners;
+    if(res.id) memberData[name].id = res.id;
+    toast(name+"の担当販売店を保存しました");
+    renderMemberCards();
+  }
+}
+
+// ============================================================
+//  CSVインポート
+// ============================================================
+const TEMPLATES = {
+  deal: "案件名,チャネル,申請補助金,申請枠,販売店,担当者,金額,ステータス,見込ランク,入金予定月,メモ,登録日\n〇〇社,end,デジタル・AI導入補助金,通常枠,—,橋野 浩一,100,prospect,B,2026-07,備考,2026-03-01",
+  partnerdev: "代理店名,担当者,リード元,電話番号,メール,都道府県,対応者,ステータス,メモ,登録日\n〇〇株式会社,山田太郎,代理店募集.com,090-0000-0000,test@example.com,東京都,橋野 浩一,1stコンタクト,初回メモ,2026-03-01",
+  report: "日付,担当者,直販訪問,直販新規見込,直販内示,直販受注,TU受領,TU商談,TU内示,TU受注,販売店新規,販売店既存,目標1,目標2,目標3,トピック\n2026-03-01,橋野 浩一,3,2,1,0,2,1,0,0,1,0,訪問3件目標,TU2件,,本日の特記事項"
+};
+
+function downloadTemplate(type) {
+  const csv = TEMPLATES[type];
+  const bom = "\uFEFF"; // UTF-8 BOM（Excelで文字化けしないように）
+  const blob = new Blob([bom + csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `template_${type}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split("\n").map(l => l.replace(/\r/,""));
+  if (lines.length < 2) return { headers:[], rows:[] };
+  const headers = lines[0].split(",").map(h => h.trim());
+  const rows = lines.slice(1).map(line => {
+    const vals = line.split(",").map(v => v.trim());
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = vals[i]||"");
+    return obj;
+  });
+  return { headers, rows };
+}
+
+async function runImport(type) {
+  const fileInputId = type==="deal"?"import-deal-file":type==="partnerdev"?"import-pd-file":"import-report-file";
+  const statusId    = type==="deal"?"import-deal-status":type==="partnerdev"?"import-pd-status":"import-report-status";
+  const fileInput   = document.getElementById(fileInputId);
+  const statusEl    = document.getElementById(statusId);
+
+  if (!fileInput.files.length) { statusEl.textContent="CSVファイルを選択してください"; return; }
+
+  const file = fileInput.files[0];
+  const text = await file.text();
+  const { headers, rows } = parseCSV(text);
+
+  if (rows.length === 0) { statusEl.textContent="データがありません"; return; }
+
+  statusEl.textContent=`${rows.length}件 インポート中...`;
+  statusEl.style.color="var(--am)";
+
+  let success=0, fail=0;
+  const today = new Date().toISOString().split("T")[0];
+  const logLines = [];
+
+  for (const row of rows) {
+    try {
+      let payload, apiType;
+      if (type === "deal") {
+        apiType = "deal";
+        payload = {
+          案件名:row["案件名"]||"", チャネル:row["チャネル"]||"end",
+          申請補助金:row["申請補助金"]||"", 申請枠:row["申請枠"]||"",
+          販売店:row["販売店"]||"—", 担当者:row["担当者"]||"",
+          金額:parseInt(row["金額"])||0, ステータス:row["ステータス"]||"prospect",
+          見込ランク:row["見込ランク"]||"", 入金予定月:row["入金予定月"]||"",
+          メモ:row["メモ"]||"", 登録日:row["登録日"]||today,
+        };
+      } else if (type === "partnerdev") {
+        apiType = "partnerdev";
+        payload = {
+          代理店名:row["代理店名"]||"", 担当者:row["担当者"]||"",
+          リード元:row["リード元"]||"", 電話番号:row["電話番号"]||"",
+          メール:row["メール"]||"", 都道府県:row["都道府県"]||"",
+          対応者:row["対応者"]||"", ステータス:row["ステータス"]||"非対応",
+          メモ:row["メモ"]||"", 登録日:row["登録日"]||today,
+        };
+      } else {
+        apiType = "report";
+        payload = {
+          日付:row["日付"]||today, 担当者:row["担当者"]||"",
+          直販訪問:parseInt(row["直販訪問"])||0, 直販新規見込:parseInt(row["直販新規見込"])||0,
+          直販内示:parseInt(row["直販内示"])||0, 直販受注:parseInt(row["直販受注"])||0,
+          TU受領:parseInt(row["TU受領"])||0, TU商談:parseInt(row["TU商談"])||0,
+          TU内示:parseInt(row["TU内示"])||0, TU受注:parseInt(row["TU受注"])||0,
+          販売店新規:parseInt(row["販売店新規"])||0, 販売店既存:parseInt(row["販売店既存"])||0,
+          目標1:row["目標1"]||"", 目標2:row["目標2"]||"",
+          目標3:row["目標3"]||"", トピック:row["トピック"]||"",
+        };
+      }
+      const res = await apiPost({type:apiType, action:"create", payload});
+      if (res.ok) { success++; logLines.push(`✅ ${row["案件名"]||row["代理店名"]||row["日付"]||"行"+success}`); }
+      else { fail++; logLines.push(`❌ 失敗：${JSON.stringify(row).slice(0,40)}`); }
+    } catch(e) {
+      fail++;
+      logLines.push(`❌ エラー：${e.message}`);
+    }
+  }
+
+  statusEl.textContent=`完了：${success}件成功 ${fail>0?fail+"件失敗":""}`;
+  statusEl.style.color=fail>0?"var(--rd)":"var(--g)";
+
+  const logEl=document.getElementById("import-log");
+  const logBody=document.getElementById("import-log-body");
+  logEl.style.display="block";
+  logBody.innerHTML=logLines.join("<br>");
+
+  toast(`インポート完了：${success}件`);
+}
+
+// UTIL
+function num(obj,key){return parseInt(obj[key])||0;}
+function toast(msg){const t=document.getElementById("toast");t.textContent="✅ "+msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+// INIT
+const now=new Date();
+document.getElementById("today-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
+document.getElementById("rep-dt-lbl").textContent=now.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
+document.getElementById("r-date").value=now.toISOString().split("T")[0];
+document.getElementById("py-date").value=now.toISOString().split("T")[0];
+document.getElementById("hist-date").value=now.toISOString().split("T")[0];
+updateSubFrame();
+checkConn();
+loadExec();
+</script>
+</body>
+</html>
